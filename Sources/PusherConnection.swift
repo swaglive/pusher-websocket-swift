@@ -27,6 +27,8 @@ public typealias PusherEventJSON = [String: AnyObject]
     var pongResponseTimeoutTimer: Timer? = nil
     var activityTimeoutTimer: Timer? = nil
     var intentionalDisconnect: Bool = false
+    private var debounceSubscriber = DebounceSubscriber(timeframe: 2)
+    private var batchAuthorizeHelper = BatchAuthorizeHelper()
 
     var socketConnected: Bool = false {
         didSet {
@@ -111,6 +113,8 @@ public typealias PusherEventJSON = [String: AnyObject]
         super.init()
         self.socket.delegate = self
         self.socket.pongDelegate = self
+        self.debounceSubscriber.connection = self
+        self.batchAuthorizeHelper.connection = self
     }
 
     deinit {
@@ -138,6 +142,11 @@ public typealias PusherEventJSON = [String: AnyObject]
         onMemberAdded: ((PusherPresenceChannelMember) -> ())? = nil,
         onMemberRemoved: ((PusherPresenceChannelMember) -> ())? = nil
     ) -> PusherChannel {
+        
+        if let channel = debounceSubscriber.subscribe(channelName: channelName) {
+            return channel
+        }
+        
             let newChannel = channels.add(
                 name: channelName,
                 connection: self,
@@ -174,6 +183,9 @@ public typealias PusherEventJSON = [String: AnyObject]
         onMemberAdded: ((PusherPresenceChannelMember) -> ())? = nil,
         onMemberRemoved: ((PusherPresenceChannelMember) -> ())? = nil
     ) -> PusherPresenceChannel {
+        if let channel = debounceSubscriber.subscribe(channelName: channelName) as? PusherPresenceChannel {
+            return channel
+        }
         let newChannel = channels.addPresence(
             channelName: channelName,
             connection: self,
@@ -484,7 +496,7 @@ public typealias PusherEventJSON = [String: AnyObject]
             chan.handleEvent(name: "pusher:subscription_succeeded", data: eventData)
 
             self.delegate?.subscribedToChannel?(name: channelName)
-
+            self.debounceSubscriber.subscribedToChannel(name: channelName)
             chan.auth = nil
 
             while chan.unsentEvents.count > 0 {
@@ -525,11 +537,7 @@ public typealias PusherEventJSON = [String: AnyObject]
         connection was not in a connected state
     */
     fileprivate func attemptSubscriptionsToUnsubscribedChannels() {
-        for (_, channel) in self.channels.channels {
-            if !self.authorize(channel, auth: channel.auth) {
-                print("Unable to subscribe to channel: \(channel.name)")
-            }
-        }
+        debounceSubscriber.attemptSubscriptionsToUnsubscribedChannels()
     }
 
     /**
@@ -944,6 +952,40 @@ public typealias PusherEventJSON = [String: AnyObject]
             ]
         )
     }
+
+    func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
+        return batchAuthorizeHelper.authorize(channels, auth: auth)
+    }
+}
+
+extension PusherConnection: ExposureAuthorisationHelper {
+    func userDataJSON() -> String {
+        return getUserDataJSON()
+    }
+    
+    func subscribeNormalChannel(_ channel: PusherChannel) {
+        subscribeToNormalChannel(channel)
+    }
+    
+    func handleAuthorizeInfo(authString: String, channelData: String?, channel: PusherChannel) {
+        handleAuthInfo(authString: authString, channelData: channelData, channel: channel)
+    }
+    
+    func privateChannelAuth(authValue auth: String, channel: PusherChannel) {
+        handlePrivateChannelAuth(authValue: auth, channel: channel)
+    }
+    
+    func presenceChannelAuth(authValue: String, channel: PusherChannel, channelData: String) {
+        handlePresenceChannelAuth(authValue: authValue, channel: channel, channelData: channelData)
+    }
+    func authorizationError(forChannel channelName: String, response: URLResponse?, data: String?, error: NSError?) {
+        handleAuthorizationError(forChannel: channelName, response: response, data: data, error: error)
+    }
+
+    func authorizeResponse(json: [String : AnyObject], channel: PusherChannel) {
+        handleAuthResponse(json: json, channel: channel)
+    }
+
 }
 
 @objc public class PusherAuth: NSObject {

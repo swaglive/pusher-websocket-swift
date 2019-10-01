@@ -115,3 +115,9 @@ import Foundation
         return self.channels[name] as? PusherPresenceChannel
     }
 }
+
+extension PusherChannels {
+    var list: [PusherChannel] {
+        return channels.compactMap({ $0.value })
+    }
+}
