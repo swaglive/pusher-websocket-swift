@@ -32,8 +32,8 @@
 		33BB997C1D21230100B25C2A /* PusherTopLevelAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33BB99661D21226C00B25C2A /* PusherTopLevelAPITests.swift */; };
 		33C1FD6F1D81BFC300921AD7 /* ObjectiveC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C1FD6E1D81BFC300921AD7 /* ObjectiveC.swift */; };
 		33C40CB91C1DFC9C008A54E3 /* PusherSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 33831CD61A9CFFF200B124F1 /* PusherSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D046332F234330D7002E334F /* DebounceSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D046332E234330D7002E334F /* DebounceSubscriber.swift */; };
-		D04633302343319E002E334F /* DebounceSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D046332E234330D7002E334F /* DebounceSubscriber.swift */; };
+		D046332F234330D7002E334F /* ThrottleSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D046332E234330D7002E334F /* ThrottleSubscriber.swift */; };
+		D04633302343319E002E334F /* ThrottleSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D046332E234330D7002E334F /* ThrottleSubscriber.swift */; };
 		D0463332234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */; };
 		D0463333234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */; };
 		D0750CA723274372009BE121 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0750CA623274372009BE121 /* AppDelegate.swift */; };
@@ -98,7 +98,7 @@
 		33BB99661D21226C00B25C2A /* PusherTopLevelAPITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PusherTopLevelAPITests.swift; path = ../Tests/PusherTopLevelAPITests.swift; sourceTree = "<group>"; };
 		33BB99671D21226C00B25C2A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Tests/Info.plist; sourceTree = "<group>"; };
 		33C1FD6E1D81BFC300921AD7 /* ObjectiveC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectiveC.swift; sourceTree = "<group>"; };
-		D046332E234330D7002E334F /* DebounceSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebounceSubscriber.swift; sourceTree = "<group>"; };
+		D046332E234330D7002E334F /* ThrottleSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrottleSubscriber.swift; sourceTree = "<group>"; };
 		D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchAuthorizeHelper.swift; sourceTree = "<group>"; };
 		D0750CA423274372009BE121 /* BatchPusher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BatchPusher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0750CA623274372009BE121 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -181,7 +181,7 @@
 				33C1FD6E1D81BFC300921AD7 /* ObjectiveC.swift */,
 				33831C8C1A9CF61600B124F1 /* Supporting Files */,
 				33831CD61A9CFFF200B124F1 /* PusherSwift.h */,
-				D046332E234330D7002E334F /* DebounceSubscriber.swift */,
+				D046332E234330D7002E334F /* ThrottleSubscriber.swift */,
 				D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */,
 			);
 			path = Sources;
@@ -449,7 +449,7 @@
 				D0463332234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */,
 				3389F56A1CAEDD9100563F49 /* PusherWebsocketDelegate.swift in Sources */,
 				330D7A6D1CAEDA750032FF2C /* PusherChannel.swift in Sources */,
-				D046332F234330D7002E334F /* DebounceSubscriber.swift in Sources */,
+				D046332F234330D7002E334F /* ThrottleSubscriber.swift in Sources */,
 				3390D1E81F054D1E00E1944D /* Authorizer.swift in Sources */,
 				3389F5721CAEDDF300563F49 /* PusherChannels.swift in Sources */,
 				3389F5761CAEDE2800563F49 /* PusherGlobalChannel.swift in Sources */,
@@ -486,7 +486,7 @@
 				D0750CCB232743FD009BE121 /* PusherConnection.swift in Sources */,
 				D0750CCA232743F9009BE121 /* PusherDelegate.swift in Sources */,
 				D0463333234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */,
-				D04633302343319E002E334F /* DebounceSubscriber.swift in Sources */,
+				D04633302343319E002E334F /* ThrottleSubscriber.swift in Sources */,
 				D0750CD123274412009BE121 /* AuthRequestBuilderProtocol.swift in Sources */,
 				D0750CA923274372009BE121 /* BatchPusherViewController.swift in Sources */,
 				D0750CC8232743F2009BE121 /* PusherSwift.swift in Sources */,

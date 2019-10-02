@@ -27,7 +27,7 @@ public typealias PusherEventJSON = [String: AnyObject]
     var pongResponseTimeoutTimer: Timer? = nil
     var activityTimeoutTimer: Timer? = nil
     var intentionalDisconnect: Bool = false
-    private var debounceSubscriber = DebounceSubscriber(timeframe: 2)
+    private var throttleSubscriber = ThrottleSubscriber()
     private var batchAuthorizeHelper = BatchAuthorizeHelper()
 
     var socketConnected: Bool = false {
@@ -113,7 +113,7 @@ public typealias PusherEventJSON = [String: AnyObject]
         super.init()
         self.socket.delegate = self
         self.socket.pongDelegate = self
-        self.debounceSubscriber.connection = self
+        self.throttleSubscriber.connection = self
         self.batchAuthorizeHelper.connection = self
     }
 
@@ -143,7 +143,7 @@ public typealias PusherEventJSON = [String: AnyObject]
         onMemberRemoved: ((PusherPresenceChannelMember) -> ())? = nil
     ) -> PusherChannel {
         
-        if let channel = debounceSubscriber.subscribe(channelName: channelName) {
+        if let channel = throttleSubscriber.subscribe(channelName: channelName) {
             return channel
         }
         
@@ -183,7 +183,7 @@ public typealias PusherEventJSON = [String: AnyObject]
         onMemberAdded: ((PusherPresenceChannelMember) -> ())? = nil,
         onMemberRemoved: ((PusherPresenceChannelMember) -> ())? = nil
     ) -> PusherPresenceChannel {
-        if let channel = debounceSubscriber.subscribe(channelName: channelName) as? PusherPresenceChannel {
+        if let channel = throttleSubscriber.subscribe(channelName: channelName) as? PusherPresenceChannel {
             return channel
         }
         let newChannel = channels.addPresence(
@@ -496,7 +496,7 @@ public typealias PusherEventJSON = [String: AnyObject]
             chan.handleEvent(name: "pusher:subscription_succeeded", data: eventData)
 
             self.delegate?.subscribedToChannel?(name: channelName)
-            self.debounceSubscriber.subscribedToChannel(name: channelName)
+            self.throttleSubscriber.subscribedToChannel(name: channelName)
             chan.auth = nil
 
             while chan.unsentEvents.count > 0 {
@@ -537,7 +537,7 @@ public typealias PusherEventJSON = [String: AnyObject]
         connection was not in a connected state
     */
     fileprivate func attemptSubscriptionsToUnsubscribedChannels() {
-        debounceSubscriber.attemptSubscriptionsToUnsubscribedChannels()
+        throttleSubscriber.attemptSubscriptionsToUnsubscribedChannels()
     }
 
     /**
@@ -872,7 +872,6 @@ public typealias PusherEventJSON = [String: AnyObject]
                 self.handleAuthorizationError(forChannel: channel.name, response: httpResponse, data: nil, error: nil)
                 return
             }
-
             self.handleAuthResponse(json: json, channel: channel)
         })
 
@@ -984,6 +983,10 @@ extension PusherConnection: ExposureAuthorisationHelper {
 
     func authorizeResponse(json: [String : AnyObject], channel: PusherChannel) {
         handleAuthResponse(json: json, channel: channel)
+    }
+    
+    func authorizeChannel(_ channel: PusherChannel, auth: PusherAuth?) -> Bool {
+        return authorize(channel, auth: auth)
     }
 
 }

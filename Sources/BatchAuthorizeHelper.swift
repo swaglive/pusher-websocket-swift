@@ -16,6 +16,7 @@ protocol ExposureAuthorisationHelper: NSObject {
     func presenceChannelAuth(authValue: String, channel: PusherChannel, channelData: String)
     func authorizationError(forChannel channelName: String, response: URLResponse?, data: String?, error: NSError?)
     func authorizeResponse(json: [String : AnyObject], channel: PusherChannel)
+    func authorizeChannel(_ channel: PusherChannel, auth: PusherAuth?) -> Bool
 }
 
 class BatchAuthorizeHelper {
@@ -91,7 +92,7 @@ class BatchAuthorizeHelper {
         let msgBuff: [UInt8] = Array(msg.utf8)
         
         if let hmac = try? HMAC(key: secretBuff, variant: .sha256).authenticate(msgBuff) {
-            let signature = Data(bytes: hmac).toHexString()
+            let signature = Data(hmac).toHexString()
             let auth = "\(connection.key):\(signature)".lowercased()
             return auth
         }
@@ -120,7 +121,8 @@ class BatchAuthorizeHelper {
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
                 return
             }
-            print("JSON: \(json)")
+
+            self?.connection?.delegate?.debugLog?(message: "[PUSHER DEBUG] JSON: \(json)")
             self?.handleBatchAuthResponse(json: json, channels: channels)
         })
         
@@ -145,6 +147,9 @@ class BatchAuthorizeHelper {
     func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
         guard let connection = connection else { return false }
         
+        let channelNames: [String] = channels.compactMap({ $0.name })        
+        connection.delegate?.debugLog?(message: "[PUSHER DEBUG] authorize channels: \(channelNames)")
+
         let normalChannels = channels.filter({ $0.type != .presence && $0.type != .private})
         for channel in normalChannels {
             connection.subscribeNormalChannel(channel)
@@ -185,10 +190,7 @@ class BatchAuthorizeHelper {
             if let request = builder.requestFor?(socketID: socketId, channels: channels) {
                 sendBatchAuthorisationRequest(request: request, channels: channels)
             } else {
-                let errorMessage = "Authentication request could not be built"
-                let error = NSError(domain: "com.pusher.PusherSwift", code: 0, userInfo: [NSLocalizedFailureReasonErrorKey: errorMessage])
-                raiseBatchAuthError(forChannels: channels, response: nil, data: nil, error: error)
-                return false
+                fallbackAuthorize(channels, auth: auth)
             }
         case .authorizer(authorizer: let authorizer):
             handleAuthorizerBatch(channels, authorizer: authorizer, socketId: socketId)
@@ -198,4 +200,10 @@ class BatchAuthorizeHelper {
         return true
     }
     
+    private func fallbackAuthorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) {
+        channels.forEach { (channel) in
+            _ = connection?.authorizeChannel(channel, auth: auth)
+        }
+    }
+
 }
