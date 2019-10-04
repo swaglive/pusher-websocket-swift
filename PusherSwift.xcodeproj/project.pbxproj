@@ -36,10 +36,6 @@
 		D04633302343319E002E334F /* ThrottleSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D046332E234330D7002E334F /* ThrottleSubscriber.swift */; };
 		D0463332234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */; };
 		D0463333234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */; };
-		D0750CA723274372009BE121 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0750CA623274372009BE121 /* AppDelegate.swift */; };
-		D0750CA923274372009BE121 /* BatchPusherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0750CA823274372009BE121 /* BatchPusherViewController.swift */; };
-		D0750CAE23274373009BE121 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0750CAD23274373009BE121 /* Assets.xcassets */; };
-		D0750CB123274373009BE121 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0750CAF23274373009BE121 /* LaunchScreen.storyboard */; };
 		D0750CC8232743F2009BE121 /* PusherSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33831CD31A9CFFD900B124F1 /* PusherSwift.swift */; };
 		D0750CC9232743F6009BE121 /* PusherClientOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3389F5791CAEDEC800563F49 /* PusherClientOptions.swift */; };
 		D0750CCA232743F9009BE121 /* PusherDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33BA541F1D9035BD00CD853B /* PusherDelegate.swift */; };
@@ -55,7 +51,6 @@
 		D0750CD72327451D009BE121 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0750CD42327451D009BE121 /* CryptoSwift.framework */; };
 		D0750CD82327451D009BE121 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0750CD52327451D009BE121 /* Starscream.framework */; };
 		D0750CD92327451D009BE121 /* Reachability.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0750CD62327451D009BE121 /* Reachability.framework */; };
-		D0750CDB232745E0009BE121 /* BatchMain.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0750CC5232743C0009BE121 /* BatchMain.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,14 +96,6 @@
 		D046332E234330D7002E334F /* ThrottleSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrottleSubscriber.swift; sourceTree = "<group>"; };
 		D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchAuthorizeHelper.swift; sourceTree = "<group>"; };
 		D0750CA423274372009BE121 /* BatchPusher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BatchPusher.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D0750CA623274372009BE121 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		D0750CA823274372009BE121 /* BatchPusherViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchPusherViewController.swift; sourceTree = "<group>"; };
-		D0750CAD23274373009BE121 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D0750CB023274373009BE121 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		D0750CB223274373009BE121 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D0750CBB23274373009BE121 /* BatchPusherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchPusherTests.swift; sourceTree = "<group>"; };
-		D0750CBD23274373009BE121 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D0750CC4232743C0009BE121 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/BatchMain.storyboard; sourceTree = "<group>"; };
 		D0750CD42327451D009BE121 /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoSwift.framework; path = Carthage/Build/iOS/CryptoSwift.framework; sourceTree = "<group>"; };
 		D0750CD52327451D009BE121 /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
 		D0750CD62327451D009BE121 /* Reachability.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reachability.framework; path = Carthage/Build/iOS/Reachability.framework; sourceTree = "<group>"; };
@@ -147,8 +134,6 @@
 			children = (
 				33831C8B1A9CF61600B124F1 /* Sources */,
 				33BB995C1D21225B00B25C2A /* Tests */,
-				D0750CA523274372009BE121 /* BatchPusher */,
-				D0750CBA23274373009BE121 /* BatchPusherTests */,
 				33831C8A1A9CF61600B124F1 /* Products */,
 				42D29A655054030A9B238900 /* Frameworks */,
 			);
@@ -223,28 +208,6 @@
 				D0750CD52327451D009BE121 /* Starscream.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		D0750CA523274372009BE121 /* BatchPusher */ = {
-			isa = PBXGroup;
-			children = (
-				D0750CA623274372009BE121 /* AppDelegate.swift */,
-				D0750CA823274372009BE121 /* BatchPusherViewController.swift */,
-				D0750CC5232743C0009BE121 /* BatchMain.storyboard */,
-				D0750CAD23274373009BE121 /* Assets.xcassets */,
-				D0750CAF23274373009BE121 /* LaunchScreen.storyboard */,
-				D0750CB223274373009BE121 /* Info.plist */,
-			);
-			path = BatchPusher;
-			sourceTree = "<group>";
-		};
-		D0750CBA23274373009BE121 /* BatchPusherTests */ = {
-			isa = PBXGroup;
-			children = (
-				D0750CBB23274373009BE121 /* BatchPusherTests.swift */,
-				D0750CBD23274373009BE121 /* Info.plist */,
-			);
-			path = BatchPusherTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -390,9 +353,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0750CDB232745E0009BE121 /* BatchMain.storyboard in Resources */,
-				D0750CB123274373009BE121 /* LaunchScreen.storyboard in Resources */,
-				D0750CAE23274373009BE121 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,10 +448,8 @@
 				D0463333234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */,
 				D04633302343319E002E334F /* ThrottleSubscriber.swift in Sources */,
 				D0750CD123274412009BE121 /* AuthRequestBuilderProtocol.swift in Sources */,
-				D0750CA923274372009BE121 /* BatchPusherViewController.swift in Sources */,
 				D0750CC8232743F2009BE121 /* PusherSwift.swift in Sources */,
 				D0750CC9232743F6009BE121 /* PusherClientOptions.swift in Sources */,
-				D0750CA723274372009BE121 /* AppDelegate.swift in Sources */,
 				D0750CD223274412009BE121 /* Authorizer.swift in Sources */,
 				D0750CCE23274407009BE121 /* PusherPresenceChannel.swift in Sources */,
 				D0750CD323274412009BE121 /* ObjectiveC.swift in Sources */,
@@ -511,25 +469,6 @@
 			targetProxy = 33831C961A9CF61600B124F1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		D0750CAF23274373009BE121 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D0750CB023274373009BE121 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		D0750CC5232743C0009BE121 /* BatchMain.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D0750CC4232743C0009BE121 /* Base */,
-			);
-			name = BatchMain.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		33831C4E1A9CEDF800B124F1 /* Debug */ = {
