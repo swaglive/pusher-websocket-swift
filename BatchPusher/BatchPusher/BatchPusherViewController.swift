@@ -84,6 +84,13 @@ class BatchPusherViewController: UIViewController, PusherDelegate {
     func debugLog(message: String) {
         print("[PUSHER] debugLog:\(message)")
     }
+    func receivedError(error: PusherError) {
+        if let code = error.code {
+            print("[PUSHER] Received error: (\(code)) \(error.message)")
+        } else {
+            print("[PUSHER] Received error: \(error.message)")
+        }
+    }
 }
 
 

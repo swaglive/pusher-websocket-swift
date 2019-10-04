@@ -14,20 +14,18 @@
 		D0FF42F42346F00300C1E26F /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0FF42F32346F00300C1E26F /* CryptoSwift.framework */; };
 		D0FF42F62346F00500C1E26F /* Reachability.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0FF42F52346F00500C1E26F /* Reachability.framework */; };
 		D0FF42F82346F00800C1E26F /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0FF42F72346F00800C1E26F /* Starscream.framework */; };
-		D0FF42FA2346F01800C1E26F /* PusherSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0FF42F92346F01800C1E26F /* PusherSwift.framework */; };
-		D0FF42FC2346F06100C1E26F /* PusherSwift.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D0FF42F92346F01800C1E26F /* PusherSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D0FF42FF2346F24400C1E26F /* BatchMain.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0FF42FD2346F24400C1E26F /* BatchMain.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		D0FF42FB2346F03700C1E26F /* CopyFiles */ = {
+		D0FF431C2346FD8A00C1E26F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D0FF42FC2346F06100C1E26F /* PusherSwift.framework in CopyFiles */,
 			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -42,8 +40,8 @@
 		D0FF42F32346F00300C1E26F /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoSwift.framework; path = ../Carthage/Build/iOS/CryptoSwift.framework; sourceTree = "<group>"; };
 		D0FF42F52346F00500C1E26F /* Reachability.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reachability.framework; path = ../Carthage/Build/iOS/Reachability.framework; sourceTree = "<group>"; };
 		D0FF42F72346F00800C1E26F /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = ../Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
-		D0FF42F92346F01800C1E26F /* PusherSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PusherSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0FF42FE2346F24400C1E26F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/BatchMain.storyboard; sourceTree = "<group>"; };
+		D0FF43252346FE6100C1E26F /* PusherSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PusherSwift.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/PusherSwift-cnplerycfpimuxcakgksmmprrdfb/Build/Products/Debug-iphoneos/PusherSwift.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +51,6 @@
 			files = (
 				D0FF42F42346F00300C1E26F /* CryptoSwift.framework in Frameworks */,
 				D0FF42F62346F00500C1E26F /* Reachability.framework in Frameworks */,
-				D0FF42FA2346F01800C1E26F /* PusherSwift.framework in Frameworks */,
 				D0FF42F82346F00800C1E26F /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,10 +91,10 @@
 		D0FF42F22346F00300C1E26F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D0FF43252346FE6100C1E26F /* PusherSwift.framework */,
 				D0FF42F72346F00800C1E26F /* Starscream.framework */,
 				D0FF42F52346F00500C1E26F /* Reachability.framework */,
 				D0FF42F32346F00300C1E26F /* CryptoSwift.framework */,
-				D0FF42F92346F01800C1E26F /* PusherSwift.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -113,7 +110,7 @@
 				D0FF42F12346EFAF00C1E26F /* Copy Carthage Frameworks */,
 				D0FF42BB2346EE7A00C1E26F /* Frameworks */,
 				D0FF42BC2346EE7A00C1E26F /* Resources */,
-				D0FF42FB2346F03700C1E26F /* CopyFiles */,
+				D0FF431C2346FD8A00C1E26F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
