@@ -56,6 +56,9 @@
 		D0FF43052346F62800C1E26F /* PusherParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43042346F62800C1E26F /* PusherParser.swift */; };
 		D0FF430C2346F8BD00C1E26F /* PusherEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43062346F68D00C1E26F /* PusherEventTests.swift */; };
 		D0FF430D2346F8C000C1E26F /* PusherObjectiveCAPITests.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43072346F68D00C1E26F /* PusherObjectiveCAPITests.m */; };
+		D0FF43262347290100C1E26F /* PusherEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43022346F60500C1E26F /* PusherEvent.swift */; };
+		D0FF43272347290400C1E26F /* PusherParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43042346F62800C1E26F /* PusherParser.swift */; };
+		D0FF43282347290700C1E26F /* PusherError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43002346F5ED00C1E26F /* PusherError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -472,8 +475,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				D0750CCB232743FD009BE121 /* PusherConnection.swift in Sources */,
+				D0FF43272347290400C1E26F /* PusherParser.swift in Sources */,
 				D0750CCA232743F9009BE121 /* PusherDelegate.swift in Sources */,
 				D0463333234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */,
+				D0FF43262347290100C1E26F /* PusherEvent.swift in Sources */,
 				D04633302343319E002E334F /* ThrottleSubscriber.swift in Sources */,
 				D0750CD123274412009BE121 /* AuthRequestBuilderProtocol.swift in Sources */,
 				D0750CC8232743F2009BE121 /* PusherSwift.swift in Sources */,
@@ -485,6 +490,7 @@
 				D0750CCF2327440C009BE121 /* PusherGlobalChannel.swift in Sources */,
 				D0750CCD23274403009BE121 /* PusherChannel.swift in Sources */,
 				D0750CCC23274400009BE121 /* PusherWebsocketDelegate.swift in Sources */,
+				D0FF43282347290700C1E26F /* PusherError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
