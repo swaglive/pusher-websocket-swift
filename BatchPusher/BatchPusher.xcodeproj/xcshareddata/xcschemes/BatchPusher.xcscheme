@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D0750CA323274372009BE121"
+               BlueprintIdentifier = "D0FF42BD2346EE7A00C1E26F"
                BuildableName = "BatchPusher.app"
                BlueprintName = "BatchPusher"
-               ReferencedContainer = "container:PusherSwift.xcodeproj">
+               ReferencedContainer = "container:BatchPusher.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0750CA323274372009BE121"
+            BlueprintIdentifier = "D0FF42BD2346EE7A00C1E26F"
             BuildableName = "BatchPusher.app"
             BlueprintName = "BatchPusher"
-            ReferencedContainer = "container:PusherSwift.xcodeproj">
+            ReferencedContainer = "container:BatchPusher.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -55,10 +55,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0750CA323274372009BE121"
+            BlueprintIdentifier = "D0FF42BD2346EE7A00C1E26F"
             BuildableName = "BatchPusher.app"
             BlueprintName = "BatchPusher"
-            ReferencedContainer = "container:PusherSwift.xcodeproj">
+            ReferencedContainer = "container:BatchPusher.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -74,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0750CA323274372009BE121"
+            BlueprintIdentifier = "D0FF42BD2346EE7A00C1E26F"
             BuildableName = "BatchPusher.app"
             BlueprintName = "BatchPusher"
-            ReferencedContainer = "container:PusherSwift.xcodeproj">
+            ReferencedContainer = "container:BatchPusher.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
