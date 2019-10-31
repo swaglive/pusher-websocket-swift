@@ -5,6 +5,9 @@
       location = "group:PusherSwift.xcodeproj">
    </FileRef>
    <FileRef
+      location = "group:BatchPusher/BatchPusher.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:iOS Example Swift/iOS Example Swift.xcodeproj">
    </FileRef>
    <FileRef
