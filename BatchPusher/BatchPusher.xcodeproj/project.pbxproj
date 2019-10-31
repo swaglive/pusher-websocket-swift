@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D005A239236ABC52006F811C /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D0FF42CD2346EE7C00C1E26F /* Info.plist */; };
 		D0FF42C22346EE7A00C1E26F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF42C12346EE7A00C1E26F /* AppDelegate.swift */; };
 		D0FF42C92346EE7C00C1E26F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0FF42C82346EE7C00C1E26F /* Assets.xcassets */; };
 		D0FF42CC2346EE7C00C1E26F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0FF42CA2346EE7C00C1E26F /* LaunchScreen.storyboard */; };
@@ -58,6 +59,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D005A238236ABC42006F811C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				D0FF42CD2346EE7C00C1E26F /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		D0FF42B52346EE7A00C1E26F = {
 			isa = PBXGroup;
 			children = (
@@ -82,8 +91,8 @@
 				D0FF42EF2346EF1300C1E26F /* BatchPusherViewController.swift */,
 				D0FF42FD2346F24400C1E26F /* BatchMain.storyboard */,
 				D0FF42C82346EE7C00C1E26F /* Assets.xcassets */,
+				D005A238236ABC42006F811C /* Supporting Files */,
 				D0FF42CA2346EE7C00C1E26F /* LaunchScreen.storyboard */,
-				D0FF42CD2346EE7C00C1E26F /* Info.plist */,
 			);
 			path = BatchPusher;
 			sourceTree = "<group>";
@@ -159,6 +168,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D005A239236ABC52006F811C /* Info.plist in Resources */,
 				D0FF42CC2346EE7C00C1E26F /* LaunchScreen.storyboard in Resources */,
 				D0FF42C92346EE7C00C1E26F /* Assets.xcassets in Resources */,
 				D0FF42FF2346F24400C1E26F /* BatchMain.storyboard in Resources */,
