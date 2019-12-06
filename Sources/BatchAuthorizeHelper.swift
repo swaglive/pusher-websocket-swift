@@ -8,6 +8,15 @@
 import Foundation
 import CryptoSwift
 
+extension NSNotification.Name {
+    public static var PusherInitPrivateChannelData: NSNotification.Name {
+        return NSNotification.Name(rawValue: "PUSHER_INIT_PRIVATE_CHANNEL_DATA")
+    }
+    public static var PusherInitPresenceChannelData: NSNotification.Name {
+        return NSNotification.Name(rawValue: "PUSHER_INIT_PRESENCE_CHANNEL_DATA")
+    }
+}
+
 protocol ExposureAuthorisationHelper: NSObject {
     func userDataJSON() -> String
     func subscribeNormalChannel(_ channel: PusherChannel)
@@ -31,7 +40,7 @@ class BatchAuthorizeHelper {
         let parameters: [String : Any] = ["socket_id": socketId, "channels":channelNames]
         let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options:[])
         request.httpBody = httpBody
-        
+
         return request
     }
     
@@ -139,25 +148,39 @@ class BatchAuthorizeHelper {
             if let payload = json[channel.name] as? [String: AnyObject] {
                 connection?.authorizeResponse(json: payload, channel: channel)
                 forwardPrivateChannelDataIfRecognize(payload: payload, channel: channel)
+                forwardPresenceChannelDataIfRecognize(payload: payload, channel: channel)
             }
         }
         
         raiseBatchAuthError(forChannels: failureChannels, response: nil, data: nil, error: nil)
     }
+
     
     fileprivate func forwardPrivateChannelDataIfRecognize(payload: [String: AnyObject], channel: PusherChannel) {
-        guard channel.name.hasPrefix("private-") else { return }
-        
-        if let channelData = payload["channel_data"] as? String,
-            let data = channelData.data(using: .utf8),
-            let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
-            let json = jsonObject as? [String: AnyObject]  {
-            var userInfo: [String: AnyObject] = ["channel": channel.name as AnyObject]
-            userInfo.merge(json) { $1 }
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "PUSHER_AUTH_PRIVATE_CHANNEL_DATA"), object: nil, userInfo: userInfo)
+        guard channel.type == .private else { return }
+        if let channelData = payload["channel_data"] as? String {
+            let userInfo = converToUserInfo(channelName: channel.name, channelData: channelData)
+            NotificationCenter.default.post(name: NSNotification.Name.PusherInitPrivateChannelData, object: nil, userInfo: userInfo)
         }
     }
     
+    fileprivate func forwardPresenceChannelDataIfRecognize(payload: [String: AnyObject], channel: PusherChannel) {
+        guard channel.type == .presence else { return }
+        if let channelData = payload["channel_data"] as? String {
+            let userInfo = converToUserInfo(channelName: channel.name, channelData: channelData)
+            NotificationCenter.default.post(name: NSNotification.Name.PusherInitPresenceChannelData, object: nil, userInfo: userInfo)
+        }
+    }
+
+    private func converToUserInfo(channelName: String, channelData: String) -> [String: AnyObject] {
+        var userInfo: [String: AnyObject] = ["channel": channelName as AnyObject]
+        if let data = channelData.data(using: .utf8),
+            let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
+            let json = jsonObject as? [String: AnyObject]  {
+            userInfo.merge(json) { $1 }
+        }
+        return userInfo
+    }    
     
     func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
         guard let connection = connection else { return false }

@@ -29,7 +29,8 @@ class BatchPusherViewController: UIViewController, PusherDelegate {
         //        let pusherClientOptions = PusherClientOptions(authMethod: .inline(secret: "YOUR_APP_SECRET"))
         
         print("deviceID: \(deviceID)")
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChannelDataNotification(_:)), name: NSNotification.Name(rawValue: "PUSHER_AUTH_PRIVATE_CHANNEL_DATA"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceivePrivateChannelDataNotification(_:)), name: NSNotification.Name.PusherInitPrivateChannelData, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceivePresenceChannelDataNotification(_:)), name: NSNotification.Name.PusherInitPresenceChannelData, object: nil)
 
         
         let pusherClientOptions = PusherClientOptions (
@@ -54,6 +55,7 @@ class BatchPusherViewController: UIViewController, PusherDelegate {
 
         _ = pusher.subscribe("private-swag")
         _ = pusher.subscribe("presence-client@\(deviceID)")
+        _ = pusher.subscribe("zr@5ca18900c449bf5431d4b1e1")
         _ = pusher.subscribe("private-user@5ca18900c449bf5431d4b1e1")
 
 
@@ -96,11 +98,14 @@ class BatchPusherViewController: UIViewController, PusherDelegate {
     }
     
     
-    @objc func didReceiveChannelDataNotification(_ notification: Notification) {
+    @objc func didReceivePrivateChannelDataNotification(_ notification: Notification) {
         guard let userInfo = notification.userInfo else { return }
-        print("[userInfo]: \(userInfo)")
+        print("[didReceivePrivateChannelDataNotification]: \(userInfo)")
     }
-}
+    @objc func didReceivePresenceChannelDataNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        print("[didReceivePresenceChannelDataNotification]: \(userInfo)")
+    }}
 
 
 let deviceID = UUID().uuidString.lowercased()
