@@ -138,11 +138,26 @@ class BatchAuthorizeHelper {
         for channel in responseChannels {
             if let payload = json[channel.name] as? [String: AnyObject] {
                 connection?.authorizeResponse(json: payload, channel: channel)
+                forwardPrivateChannelDataIfRecognize(payload: payload, channel: channel)
             }
         }
         
         raiseBatchAuthError(forChannels: failureChannels, response: nil, data: nil, error: nil)
     }
+    
+    fileprivate func forwardPrivateChannelDataIfRecognize(payload: [String: AnyObject], channel: PusherChannel) {
+        guard channel.name.hasPrefix("private-") else { return }
+        
+        if let channelData = payload["channel_data"] as? String,
+            let data = channelData.data(using: .utf8),
+            let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
+            let json = jsonObject as? [String: AnyObject]  {
+            var userInfo: [String: AnyObject] = ["channel": channel.name as AnyObject]
+            userInfo.merge(json) { $1 }
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "PUSHER_AUTH_PRIVATE_CHANNEL_DATA"), object: nil, userInfo: userInfo)
+        }
+    }
+    
     
     func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
         guard let connection = connection else { return false }
@@ -206,4 +221,44 @@ class BatchAuthorizeHelper {
         }
     }
 
+}
+
+
+struct PusherAuthChannelData: Codable {
+    let channelData: ChannelData?
+
+    enum CodingKeys: String, CodingKey {
+        case channelData
+    }
+}
+
+// MARK: - ChannelData
+struct ChannelData: Codable {
+    let userID: String?
+    let userInfo: UserInfo?
+
+    enum CodingKeys: String, CodingKey {
+        case userID
+        case userInfo
+    }
+}
+
+// MARK: - UserInfo
+struct UserInfo: Codable {
+    let online: Online?
+
+    enum CodingKeys: String, CodingKey {
+        case online
+    }
+}
+
+// MARK: - Online
+struct Online: Codable {
+    let status: String?
+    let timestamp: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case status
+        case timestamp
+    }
 }

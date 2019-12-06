@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D005A239236ABC52006F811C /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D0FF42CD2346EE7C00C1E26F /* Info.plist */; };
+		D0EE159023990C9300148556 /* PusherSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0EE158F23990C9300148556 /* PusherSwift.framework */; };
 		D0FF42C22346EE7A00C1E26F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF42C12346EE7A00C1E26F /* AppDelegate.swift */; };
 		D0FF42C92346EE7C00C1E26F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0FF42C82346EE7C00C1E26F /* Assets.xcassets */; };
 		D0FF42CC2346EE7C00C1E26F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0FF42CA2346EE7C00C1E26F /* LaunchScreen.storyboard */; };
@@ -32,6 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D0EE158F23990C9300148556 /* PusherSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PusherSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0FF42BE2346EE7A00C1E26F /* BatchPusher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BatchPusher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0FF42C12346EE7A00C1E26F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0FF42C82346EE7C00C1E26F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -50,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0EE159023990C9300148556 /* PusherSwift.framework in Frameworks */,
 				D0FF42F42346F00300C1E26F /* CryptoSwift.framework in Frameworks */,
 				D0FF42F62346F00500C1E26F /* Reachability.framework in Frameworks */,
 				D0FF42F82346F00800C1E26F /* Starscream.framework in Frameworks */,
@@ -100,6 +102,7 @@
 		D0FF42F22346F00300C1E26F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D0EE158F23990C9300148556 /* PusherSwift.framework */,
 				D0FF43252346FE6100C1E26F /* PusherSwift.framework */,
 				D0FF42F72346F00800C1E26F /* Starscream.framework */,
 				D0FF42F52346F00500C1E26F /* Reachability.framework */,
@@ -168,7 +171,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D005A239236ABC52006F811C /* Info.plist in Resources */,
 				D0FF42CC2346EE7C00C1E26F /* LaunchScreen.storyboard in Resources */,
 				D0FF42C92346EE7C00C1E26F /* Assets.xcassets in Resources */,
 				D0FF42FF2346F24400C1E26F /* BatchMain.storyboard in Resources */,
