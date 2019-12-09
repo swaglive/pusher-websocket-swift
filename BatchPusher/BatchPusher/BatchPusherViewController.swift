@@ -55,7 +55,7 @@ class BatchPusherViewController: UIViewController, PusherDelegate {
 
         _ = pusher.subscribe("private-swag")
         _ = pusher.subscribe("presence-client@\(deviceID)")
-        _ = pusher.subscribe("zr@5ca18900c449bf5431d4b1e1")
+        _ = pusher.subscribe("presence-user@5c9c9d65a401578980803e9d")
         _ = pusher.subscribe("private-user@5ca18900c449bf5431d4b1e1")
 
 
