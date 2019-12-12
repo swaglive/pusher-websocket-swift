@@ -60,7 +60,12 @@ class ThrottleSubscriber {
     }
     
     func subscribedToChannel(name: String) {
-        if let channel = candidateChannels.filter({ $0.name == name }).first {
+        var channels = [PusherChannel]()
+        queue.sync { 
+            channels = Array(candidateChannels)
+        }
+        let filterChannels = channels.filter({ $0.name == name })
+        if let channel = filterChannels.first {
             queue.async(flags: .barrier) { [weak self] in
                 self?.candidateChannels.remove(channel)
             }
