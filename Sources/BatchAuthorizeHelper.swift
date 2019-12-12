@@ -159,7 +159,7 @@ class BatchAuthorizeHelper {
     fileprivate func forwardPrivateChannelDataIfRecognize(payload: [String: AnyObject], channel: PusherChannel) {
         guard channel.type == .private else { return }
         if let channelData = payload["channel_data"] as? String {
-            let userInfo = converToUserInfo(channelName: channel.name, channelData: channelData)
+            let userInfo = convertToUserInfo(channelName: channel.name, channelData: channelData)
             NotificationCenter.default.post(name: NSNotification.Name.PusherInitPrivateChannelData, object: nil, userInfo: userInfo)
         }
     }
@@ -167,12 +167,12 @@ class BatchAuthorizeHelper {
     fileprivate func forwardPresenceChannelDataIfRecognize(payload: [String: AnyObject], channel: PusherChannel) {
         guard channel.type == .presence else { return }
         if let channelData = payload["channel_data"] as? String {
-            let userInfo = converToUserInfo(channelName: channel.name, channelData: channelData)
+            let userInfo = convertToUserInfo(channelName: channel.name, channelData: channelData)
             NotificationCenter.default.post(name: NSNotification.Name.PusherInitPresenceChannelData, object: nil, userInfo: userInfo)
         }
     }
 
-    private func converToUserInfo(channelName: String, channelData: String) -> [String: AnyObject] {
+    private func convertToUserInfo(channelName: String, channelData: String) -> [String: AnyObject] {
         var userInfo: [String: AnyObject] = ["channel": channelName as AnyObject]
         if let data = channelData.data(using: .utf8),
             let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
