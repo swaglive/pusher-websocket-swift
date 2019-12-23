@@ -123,7 +123,11 @@ class ThrottleSubscriber {
     
     private func authorizePriorityChannel(_ channel: PusherChannel) {
         guard let connection = self.connection, connection.connectionState == .connected else { return }
-        if !connection.authorize([channel]) {
+        var channels = [PusherChannel]()
+        queue.sync() { 
+            channels = Array([channel])
+        }
+        if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
     }
