@@ -57,7 +57,7 @@ class ThrottleSubscriber {
             return newChannel
         }
         
-        if candidateChannels.count < 25 {
+        if fetchCandidateChannels().count < 25 {
             queue.async(flags: .barrier) { [weak self] in
                 self?.candidateChannels.insert(newChannel)
             }
@@ -73,10 +73,7 @@ class ThrottleSubscriber {
     }
     
     func subscribedToChannel(name: String) {
-        var channels = [PusherChannel]()
-        queue.sync { 
-            channels = Array(candidateChannels)
-        }
+        let channels = fetchCandidateChannels()
         let filterChannels = channels.filter({ $0.name == name })
         if let channel = filterChannels.first {
             queue.async(flags: .barrier) { [weak self] in
@@ -91,6 +88,17 @@ class ThrottleSubscriber {
             self.candidateChannels = self.candidateChannels.union(connection.channels.list)
         }
     }
+    
+    //MARK: - Private Methods
+    
+    private func fetchCandidateChannels() -> Array<PusherChannel> {
+        var channels = [PusherChannel]()
+        queue.sync {
+            channels = Array(candidateChannels)
+        }
+        return channels
+    }
+    
     private func buildPresenceChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel {
         return connection.channels.addPresence(
             channelName: channelName,
@@ -100,6 +108,7 @@ class ThrottleSubscriber {
             onMemberRemoved: nil
         )
     }
+    
     private func buildChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel {
         return connection.channels.add(
             name: channelName,
@@ -112,10 +121,7 @@ class ThrottleSubscriber {
     
     private func authorizeIfNeeded() {
         guard let connection = self.connection, connection.connectionState == .connected else { return }
-        var channels = [PusherChannel]()
-        queue.sync() { [weak self] in
-            channels = Array(self?.candidateChannels ?? [])
-        }
+        let channels = fetchCandidateChannels()
         if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
@@ -123,10 +129,7 @@ class ThrottleSubscriber {
     
     private func authorizePriorityChannel(_ channel: PusherChannel) {
         guard let connection = self.connection, connection.connectionState == .connected else { return }
-        var channels = [PusherChannel]()
-        queue.sync() { 
-            channels = Array([channel])
-        }
+        let channels =  Array([channel])
         if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
