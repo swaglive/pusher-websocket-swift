@@ -91,7 +91,7 @@ class ThrottleSubscriber {
     
     //MARK: - Private Methods
     
-    private func fetchCandidateChannels() -> Set<PusherChannel> {
+    private func fetchCandidateChannels() -> Array<PusherChannel> {
         var channels = [PusherChannel]()
         queue.sync {
             channels = Array(candidateChannels)
