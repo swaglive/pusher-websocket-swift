@@ -26,7 +26,7 @@ fileprivate class Throttler {
         // Re-assign workItem with the new block task, resetting the previousRun time when it executes
         workItem = DispatchWorkItem() {
             [weak self] in
-            self?.previousRun = Date()
+            self?.updatePreviousRun()
             block()
         }
         
@@ -36,6 +36,9 @@ fileprivate class Throttler {
         // => delay the workItem execution by the minimum delay time
         let delay = previousRun.timeIntervalSinceNow > minimumDelay ? 0 : minimumDelay
         queue.asyncAfter(deadline: .now() + Double(delay), execute: workItem)
+    }
+    func updatePreviousRun() {
+        previousRun = Date()
     }
 }
 
@@ -49,13 +52,23 @@ class ThrottleSubscriber {
         guard let connection = self.connection else { return nil }
         let newChannel = channelName.hasPrefix("presence-") ? buildPresenceChannel(channelName, connection: connection) : buildChannel(channelName, connection: connection)
         
-        queue.async(flags: .barrier) { [weak self] in
-            self?.candidateChannels.insert(newChannel)
+        if channelName.hasPrefix("presence-user@") || channelName.hasPrefix("presence-client@") {
+            authorizePriorityChannel(newChannel)
+            return newChannel
         }
-
-        throttler.throttle { [weak self] in
-            self?.authorizeIfNeeded()
+        
+        if candidateChannels.count < 25 {
+            queue.async(flags: .barrier) { [weak self] in
+                self?.candidateChannels.insert(newChannel)
+            }
+            throttler.throttle { [weak self] in
+                self?.authorizeIfNeeded()
+            }
+        } else {
+            authorizeIfNeeded()
+            throttler.updatePreviousRun()
         }
+        
         return newChannel
     }
     
@@ -102,6 +115,17 @@ class ThrottleSubscriber {
         var channels = [PusherChannel]()
         queue.sync() { [weak self] in
             channels = Array(self?.candidateChannels ?? [])
+        }
+        if !connection.authorize(channels) {
+            print("[ThrottleSubscriber] Unable to subscribe to channels")
+        }
+    }
+    
+    private func authorizePriorityChannel(_ channel: PusherChannel) {
+        guard let connection = self.connection, connection.connectionState == .connected else { return }
+        var channels = [PusherChannel]()
+        queue.sync() { 
+            channels = Array([channel])
         }
         if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
