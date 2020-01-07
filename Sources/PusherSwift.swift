@@ -160,6 +160,12 @@ let CLIENT_NAME = "pusher-websocket-swift"
     }
 }
 
+extension Pusher {
+    open func batchRequests(max: Int) {
+        connection.batchAuthorizeLimit = max
+    }
+}
+
 /**
     Creates a valid URL that can be used in a connection attempt
 
