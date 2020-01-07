@@ -47,7 +47,8 @@ class ThrottleSubscriber {
     weak var connection: PusherConnection? = nil
     private var candidateChannels = Set<PusherChannel>()
     private let queue = DispatchQueue(label: "ThrottleSubscriber.SafeArrayQueue", attributes: .concurrent)
-
+    var limit: Int = 25
+    
     func subscribe(channelName: String) -> PusherChannel? {
         guard let connection = self.connection else { return nil }
         let newChannel = channelName.hasPrefix("presence-") ? buildPresenceChannel(channelName, connection: connection) : buildChannel(channelName, connection: connection)
@@ -57,7 +58,7 @@ class ThrottleSubscriber {
             return newChannel
         }
         
-        if fetchCandidateChannels().count < 25 {
+        if fetchCandidateChannels().count < limit {
             queue.async(flags: .barrier) { [weak self] in
                 self?.candidateChannels.insert(newChannel)
             }

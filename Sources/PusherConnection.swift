@@ -28,6 +28,12 @@ import CryptoSwift
     private var throttleSubscriber = ThrottleSubscriber()
     private var batchAuthorizeHelper = BatchAuthorizeHelper()
 
+    var batchAuthorizeLimit: Int = 25 {
+        didSet {
+            throttleSubscriber.limit = batchAuthorizeLimit
+        }
+    }
+    
     var socketConnected: Bool = false {
         didSet {
             setConnectionStateToConnectedAndAttemptSubscriptions()
