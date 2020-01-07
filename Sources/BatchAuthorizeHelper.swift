@@ -119,8 +119,12 @@ class BatchAuthorizeHelper {
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
                 return
             }
-            
-            guard let httpResponse = response as? HTTPURLResponse, (httpResponse.statusCode == 200 || httpResponse.statusCode == 201) else {
+            let statusCode = (response as? HTTPURLResponse)?.statusCode
+
+            guard (statusCode == 200 || statusCode == 201) else {
+
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
+
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: nil)
                 return

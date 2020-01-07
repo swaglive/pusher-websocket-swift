@@ -922,6 +922,11 @@ import CryptoSwift
     func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
         return batchAuthorizeHelper.authorize(channels, auth: auth)
     }
+    
+    func retryPresenceChannelsForBatchLimitError() {
+        throttleSubscriber.allowChannelsFilter(hasPrefix: "presence-")
+        throttleSubscriber.retryAfterExponentialBackoffDelay()
+    }
 }
 
 extension PusherConnection: ExposureAuthorisationHelper {

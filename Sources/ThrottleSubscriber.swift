@@ -7,19 +7,26 @@
 
 import Foundation
 
+extension DispatchTime {
+    public static func secondsFromNow(_ amount: Double) -> DispatchTime {
+        return DispatchTime.now() + amount
+    }
+}
+
 fileprivate class Throttler {
     //https://www.craftappco.com/blog/2018/5/30/simple-throttling-in-swift
     private var workItem: DispatchWorkItem = DispatchWorkItem(block: {})
     private var previousRun: Date = Date.distantPast
     private let queue: DispatchQueue
-    private let minimumDelay: TimeInterval
+    private(set) var minimumDelay: TimeInterval
+    var executeBlock: (() -> ())?
     
     init(minimumDelay: TimeInterval, queue: DispatchQueue = DispatchQueue.main) {
         self.minimumDelay = minimumDelay
         self.queue = queue
     }
     
-    func throttle(_ block: @escaping () -> Void) {
+    func schedule() {
         // Cancel any existing work item if it has not yet executed
         workItem.cancel()
         
@@ -27,7 +34,7 @@ fileprivate class Throttler {
         workItem = DispatchWorkItem() {
             [weak self] in
             self?.updatePreviousRun()
-            block()
+            self?.executeBlock?()
         }
         
         // If the time since the previous run is more than the required minimum delay
@@ -43,11 +50,21 @@ fileprivate class Throttler {
 }
 
 class ThrottleSubscriber {
-    private let throttler = Throttler(minimumDelay: 1)
+    private var throttler = Throttler(minimumDelay: 1)
     weak var connection: PusherConnection? = nil
     private var candidateChannels = Set<PusherChannel>()
-    private let queue = DispatchQueue(label: "ThrottleSubscriber.SafeArrayQueue", attributes: .concurrent)
+    private let queue = DispatchQueue(label: "ThrottleSubscriber.Queue", attributes: .concurrent)
+    private var exponentialBackoff = ExponentialBackoff.build()
     var limit: Int = 25
+    
+    init() {
+        let executeBlock: (() -> ())? = { [weak self] in
+            self?.authorizeIfNeeded()
+        }
+        
+        throttler.executeBlock = executeBlock
+        exponentialBackoff.executeBlock = executeBlock
+    }
     
     func subscribe(channelName: String) -> PusherChannel? {
         guard let connection = self.connection else { return nil }
@@ -62,9 +79,8 @@ class ThrottleSubscriber {
             queue.async(flags: .barrier) { [weak self] in
                 self?.candidateChannels.insert(newChannel)
             }
-            throttler.throttle { [weak self] in
-                self?.authorizeIfNeeded()
-            }
+            throttler.schedule()
+            
         } else {
             authorizeIfNeeded()
             throttler.updatePreviousRun()
@@ -81,12 +97,25 @@ class ThrottleSubscriber {
                 self?.candidateChannels.remove(channel)
             }
         }
+        exponentialBackoff.reset()
     }
     
     func attemptSubscriptionsToUnsubscribedChannels() {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self, let connection = self.connection else { return }
             self.candidateChannels = self.candidateChannels.union(connection.channels.list)
+        }
+    }
+    
+    func retryAfterExponentialBackoffDelay() {
+        exponentialBackoff.schedule()
+    }
+    
+    func allowChannelsFilter(hasPrefix prifix: String) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
+            let presenceChannels = self.candidateChannels.filter({ $0.name.hasPrefix(prifix) })
+            self.candidateChannels = presenceChannels
         }
     }
     
@@ -134,5 +163,50 @@ class ThrottleSubscriber {
         if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
+    }
+}
+
+class ExponentialBackoff {
+    let initialInterval: TimeInterval
+    let maxIntervalTime: TimeInterval
+    let multiplier: Double
+    var executeBlock: (() -> ())?
+    private(set) var count: TimeInterval = 0
+    private(set) var isSchedule: Bool = false
+
+    static func build() -> ExponentialBackoff {
+        return ExponentialBackoff(initialInterval: 0, maxIntervalTime: 30, multiplier: 2)
+    }
+    
+    init(initialInterval: TimeInterval, maxIntervalTime: TimeInterval, multiplier: Double) {
+        self.initialInterval = initialInterval
+        self.count = initialInterval
+        self.maxIntervalTime = maxIntervalTime
+        self.multiplier = multiplier
+    }
+    
+    private func next() -> TimeInterval {
+        let value = pow(multiplier, count)
+        if value > maxIntervalTime {
+            return maxIntervalTime
+        }
+        count += 1
+        return value
+    }
+    
+    func schedule() {
+        guard isSchedule == false else { return }
+        isSchedule = true
+        let interval = next()
+        print("[\(Date()) schedule retry after: \(interval)]")
+        DispatchQueue.main.asyncAfter(deadline: .secondsFromNow(interval)) { [weak self] in
+            self?.isSchedule = false
+            self?.executeBlock?()
+        }
+    }
+    
+    func reset() {
+        count = initialInterval
+        isSchedule = false
     }
 }
