@@ -68,34 +68,55 @@ class ThrottleSubscriber {
     
     func subscribe(channelName: String) -> PusherChannel? {
         guard let connection = self.connection else { return nil }
-        let newChannel = channelName.hasPrefix("presence-") ? buildPresenceChannel(channelName, connection: connection) : buildChannel(channelName, connection: connection)
-        
-        if channelName.hasPrefix("presence-user@") || channelName.hasPrefix("presence-client@") {
-            authorizePriorityChannel(newChannel)
-            return newChannel
+        return criticalChannel(channelName, connection: connection) ?? nonCriticalChannel(channelName, connection: connection)
+    }
+    
+    private func criticalChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel? {
+        guard channelName.hasPrefix("presence-") else { return nil }
+        let channel = buildPresenceChannel(channelName, connection: connection)
+        if isDuringRetry {
+            insertCandidate(channel)
+        } else {
+            authorizePriorityChannel(channel)
         }
+        return channel
+    }
+    
+    private func nonCriticalChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel? {
+        guard isDuringRetry == false else { return nil }
+        let channel = buildChannel(channelName, connection: connection)
         
         if fetchCandidateChannels().count < limit {
-            queue.async(flags: .barrier) { [weak self] in
-                self?.candidateChannels.insert(newChannel)
-            }
+            insertCandidate(channel)
             throttler.schedule()
-            
         } else {
             authorizeIfNeeded()
             throttler.updatePreviousRun()
         }
-        
-        return newChannel
+        return channel
+    }
+
+    private func insertCandidate(_ channel: PusherChannel) {
+        queue.async(flags: .barrier) { [weak self] in
+            self?.candidateChannels.insert(channel)
+        }
+    }
+    
+    private func removeCandidate(_ channel: PusherChannel) {
+        queue.async(flags: .barrier) { [weak self] in
+            self?.candidateChannels.remove(channel)
+        }
+    }
+    
+    private var isDuringRetry: Bool {
+        return exponentialBackoff.isSchedule
     }
     
     func subscribedToChannel(name: String) {
         let channels = fetchCandidateChannels()
         let filterChannels = channels.filter({ $0.name == name })
         if let channel = filterChannels.first {
-            queue.async(flags: .barrier) { [weak self] in
-                self?.candidateChannels.remove(channel)
-            }
+            removeCandidate(channel)
         }
         exponentialBackoff.reset()
     }
@@ -106,16 +127,15 @@ class ThrottleSubscriber {
             self.candidateChannels = self.candidateChannels.union(connection.channels.list)
         }
     }
-    
-    func retryAfterExponentialBackoffDelay() {
-        exponentialBackoff.schedule()
-    }
-    
-    func allowChannelsFilter(hasPrefix prifix: String) {
+
+    func retryAndCutoffChannelWithout(prefix: String) {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self else { return }
-            let presenceChannels = self.candidateChannels.filter({ $0.name.hasPrefix(prifix) })
-            self.candidateChannels = presenceChannels
+            let criticalChannels = self.candidateChannels.filter({ $0.name.hasPrefix(prefix) })
+            self.candidateChannels = criticalChannels
+            if self.candidateChannels.count > 0 {
+                self.exponentialBackoff.schedule()
+            }
         }
     }
     
@@ -196,13 +216,18 @@ class ExponentialBackoff {
     
     func schedule() {
         guard isSchedule == false else { return }
-        isSchedule = true
+        isSchedule.toggle()
         let interval = next()
         print("[\(Date()) schedule retry after: \(interval)]")
         DispatchQueue.main.asyncAfter(deadline: .secondsFromNow(interval)) { [weak self] in
-            self?.isSchedule = false
-            self?.executeBlock?()
+            self?.doTask()
         }
+    }
+    
+    private func doTask() {
+        guard isSchedule == true else { return }
+        isSchedule.toggle()
+        executeBlock?()
     }
     
     func reset() {

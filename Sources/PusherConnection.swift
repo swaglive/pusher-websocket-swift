@@ -924,8 +924,7 @@ import CryptoSwift
     }
     
     func retryPresenceChannelsForBatchLimitError() {
-        throttleSubscriber.allowChannelsFilter(hasPrefix: "presence-")
-        throttleSubscriber.retryAfterExponentialBackoffDelay()
+        throttleSubscriber.retryAndCutoffChannelWithout(prefix: "presence-")
     }
 }
 
