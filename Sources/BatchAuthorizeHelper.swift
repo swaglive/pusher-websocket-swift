@@ -119,8 +119,12 @@ class BatchAuthorizeHelper {
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
                 return
             }
+            let statusCode = (response as? HTTPURLResponse)?.statusCode
             
-            guard let httpResponse = response as? HTTPURLResponse, (httpResponse.statusCode == 200 || httpResponse.statusCode == 201) else {
+            guard (statusCode == 200 || statusCode == 201) else {
+
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
+
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: nil)
                 return
@@ -183,11 +187,11 @@ class BatchAuthorizeHelper {
     }    
     
     func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
-        guard let connection = connection else { return false }
+        guard let connection = connection, connection.connectionState == .connected else { return false }
         
         let channelNames: [String] = channels.compactMap({ $0.name })        
         connection.delegate?.debugLog?(message: "[PUSHER DEBUG] authorize channels: \(channelNames)")
-
+        
         let normalChannels = channels.filter({ $0.type != .presence && $0.type != .private})
         for channel in normalChannels {
             connection.subscribeNormalChannel(channel)

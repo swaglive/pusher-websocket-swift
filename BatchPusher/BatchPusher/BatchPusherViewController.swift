@@ -12,6 +12,7 @@ import PusherSwift
 class BatchPusherViewController: UIViewController, PusherDelegate {
     var pusher: Pusher! = nil
     var channels = [PusherChannel]()
+    var watingChannels = [String]()
     @IBAction func connectButton(_ sender: AnyObject) {
         pusher.connect()
     }
@@ -55,24 +56,23 @@ class BatchPusherViewController: UIViewController, PusherDelegate {
         channels.append(pusher.subscribe("private-swag"))
         channels.append(pusher.subscribe("private-swag"))
         channels.append(pusher.subscribe("presence-client@\(deviceID)"))
-        channels.append(pusher.subscribe("presence-user@5c9c9d65a401578980803e9d"))
         channels.append(pusher.subscribe("private-user@5ca18900c449bf5431d4b1e1")) //john6273
 
-        let myChannel = pusher.subscribe("private-user@5cab00e6b56dea13e93edebb") //max9961
+        let userChannel = pusher.subscribe("private-user@5cab00e6b56dea13e93edebb") //max9961
         
-        myChannel.bind(eventName: "online", eventCallback: { (event: PusherEvent) -> Void in
+        userChannel.bind(eventName: "online", eventCallback: { (event: PusherEvent) -> Void in
             if let data: String = event.data {
                 // `data` is a string that you can parse if necessary.
                 print("[BIND] \(data)")
             }
         })
-        myChannel.bind(eventName: "offline", eventCallback: { (event: PusherEvent) -> Void in
+        userChannel.bind(eventName: "offline", eventCallback: { (event: PusherEvent) -> Void in
             if let data: String = event.data {
                 // `data` is a string that you can parse if necessary.
                 print("[BIND] \(data)")
             }
         })
-        channels.append(myChannel)
+        channels.append(userChannel)
         
         pusher.bind { [weak self](data: Any?) in
             print(data)
@@ -81,22 +81,47 @@ class BatchPusherViewController: UIViewController, PusherDelegate {
         let deadline = DispatchTime.now() + .seconds(4)
         
         DispatchQueue.main.asyncAfter(deadline: deadline) {
-            _ = self.pusher.subscribe("private-ios")
+            self.channels.append(self.pusher.subscribe("presence-user@57a42a779f22bb6bcc434520"))
         }
         
     }
     
-    // PusherDelegate methods
+    private func resubscribeQueueChannelsIfNeeded() {
+        guard let connection = pusher?.connection, connection.connectionState == .connected, !watingChannels.isEmpty else {
+            return
+        }
+        for channelName in watingChannels {
+             _ = pusher.subscribe(channelName)
+         }
+        watingChannels.removeAll()
+    }
     
+    private func moveCurrentChannelsToQueue() {
+        channels.forEach { (channel) in
+            watingChannels.append(channel.name)
+        }
+        channels.removeAll()
+    }
+
+    
+    // PusherDelegate methods
+    func changedConnectionState(from old: ConnectionState, to new: ConnectionState) {
+        print("[PUSHER] changedConnectionState: old:\(old.stringValue()) new:\(new.stringValue())")
+
+        switch new {
+        case .connected:
+            resubscribeQueueChannelsIfNeeded()
+        case .disconnected:
+            moveCurrentChannelsToQueue()
+        default:
+            break
+        }
+    }
+
     func failedToSubscribeToChannel(name: String, response: URLResponse?, data: String?, error: NSError?) {
         print("[PUSHER] failedToSubscribeToChannel: \(name) error:\(error?.description ?? "nil")")
     }
-    
-    func changedConnectionState(from old: ConnectionState, to new: ConnectionState) {
-        // print the old and new connection states
-        print("[PUSHER] changedConnectionState: old:\(old.stringValue()) new:\(new.stringValue())")
-    }
-    
+
     func subscribedToChannel(name: String) {
         print("[PUSHER] Subscribed to \(name)")
     }
@@ -135,7 +160,7 @@ class AuthRequestBuilder: AuthRequestBuilderProtocol {
         request.httpMethod = "POST"
         request.addValue(deviceID, forHTTPHeaderField: "'X-Client-ID")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        let jwt = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjU5MTVhOWYzIn0.eyJzdWIiOiI1YzljOWQ2NWE0MDE1Nzg5ODA4MDNlOWQiLCJpc3MiOiJhcGkudjIuc3dhZy5saXZlIiwiYXVkIjoiYXBpLnYyLnN3YWcubGl2ZSIsImlhdCI6MTU3NTg3MzYyMywiZXhwIjoxNTc3MDgzMjIzLCJqdGkiOiJYZTNzVi1SQUlZdTZMby1oIiwic2NvcGVzIjpbInVwbG9hZGVyIiwiY2hhdCIsInN0YXRzOnJlYWQiXX0.PIk4UivKAZAMl3X-ESaBsQWp794ZFBa75hTidfKE7DM"
+        let jwt = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjU5MTVhOWYzIn0.eyJzdWIiOiI1N2E0MmE3NzlmMjJiYjZiY2M0MzQ1MjAiLCJpc3MiOiJhcGkuc3dhZy5saXZlIiwiYXVkIjoiYXBpLnN3YWcubGl2ZSIsImlhdCI6MTU3Nzk0ODM2MiwiZXhwIjoxNTc5MTU3OTYyLCJqdGkiOiJYZzJVeXFidXFMMjQ1QVREIiwic2NvcGVzIjpbInVwbG9hZGVyIiwic3RhdHM6cmVhZCIsImNoYXQiLCJjdXJhdG9yIl19.pWzyKoUMJSr_cJ6ypPd3VmPHAiIylDMFY9snFFKd1po"
         request.addValue(jwt, forHTTPHeaderField: "Authorization")
 
         let channelNames = channels.compactMap({ $0.name })
