@@ -55,7 +55,7 @@ class ThrottleSubscriber {
     private var candidateChannels = Set<PusherChannel>()
     private let queue = DispatchQueue(label: "ThrottleSubscriber.Queue", attributes: .concurrent)
     private var exponentialBackoff = ExponentialBackoff.build()
-    var limit: Int = 25
+    var limit: Int = 10
     
     init() {
         let executeBlock: (() -> ())? = { [weak self] in
