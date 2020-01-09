@@ -28,6 +28,10 @@ import CryptoSwift
     private var throttleSubscriber = ThrottleSubscriber()
     private var batchAuthorizeHelper = BatchAuthorizeHelper()
 
+    func batchRequests(max: Int) {
+        throttleSubscriber.limit = max
+    }
+    
     var socketConnected: Bool = false {
         didSet {
             setConnectionStateToConnectedAndAttemptSubscriptions()
@@ -915,6 +919,10 @@ import CryptoSwift
 
     func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
         return batchAuthorizeHelper.authorize(channels, auth: auth)
+    }
+    
+    func retryPresenceChannelsForBatchLimitError() {
+        throttleSubscriber.retryAndCutoffChannelWithout(prefix: "presence-")
     }
 }
 
