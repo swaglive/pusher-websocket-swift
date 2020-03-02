@@ -109,7 +109,7 @@ class BatchAuthorizeHelper {
     }
     
     fileprivate func sendBatchAuthorisationRequest(request: URLRequest, channels: [PusherChannel]) {
-        print("[SEND BATCH REQUEST] \(request.url)")
+        print("[SEND BATCH REQUEST] \(String(describing: request.url))")
         
         let task = connection?.URLSession.dataTask(with: request, completionHandler: { [weak self] data, response, sessionError in
             if let error = sessionError {
@@ -136,6 +136,7 @@ class BatchAuthorizeHelper {
             }
             
             guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []), let json = jsonObject as? [String: AnyObject] else {
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
                 return
             }

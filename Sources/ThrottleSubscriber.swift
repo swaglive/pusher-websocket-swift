@@ -102,9 +102,9 @@ class ThrottleSubscriber {
         }
     }
     
-    private func removeCandidate(_ channel: PusherChannel) {
+    private func removeCandidate(_ channels: [PusherChannel]) {
         queue.async(flags: .barrier) { [weak self] in
-            self?.candidateChannels.remove(channel)
+            self?.candidateChannels.subtract(channels)
         }
     }
     
@@ -116,7 +116,7 @@ class ThrottleSubscriber {
         let channels = fetchCandidateChannels()
         let filterChannels = channels.filter({ $0.name == name })
         if let channel = filterChannels.last {
-            removeCandidate(channel)
+            removeCandidate([channel])
         }
         exponentialBackoff.reset()
     }
@@ -145,7 +145,6 @@ class ThrottleSubscriber {
         var channels = [PusherChannel]()
         queue.sync {
             channels = Array(candidateChannels)
-            candidateChannels.removeAll()
         }
         return channels
     }
@@ -176,6 +175,7 @@ class ThrottleSubscriber {
         if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
+        removeCandidate(channels)
     }
     
     private func authorizePriorityChannel(_ channel: PusherChannel) {
