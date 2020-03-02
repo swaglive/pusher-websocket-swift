@@ -109,6 +109,8 @@ class BatchAuthorizeHelper {
     }
     
     fileprivate func sendBatchAuthorisationRequest(request: URLRequest, channels: [PusherChannel]) {
+        print("[SEND BATCH REQUEST] \(request.url)")
+        
         let task = connection?.URLSession.dataTask(with: request, completionHandler: { [weak self] data, response, sessionError in
             if let error = sessionError {
                 self?.raiseBatchAuthError(forChannels: channels, response: nil, data: nil, error: error as NSError?)
@@ -123,7 +125,7 @@ class BatchAuthorizeHelper {
             
             guard (statusCode == 200 || statusCode == 201) else {
 
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
+//                self?.connection?.retryPresenceChannelsForBatchLimitError()
 
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: nil)
