@@ -50,7 +50,7 @@ fileprivate class Throttler {
 }
 
 class ThrottleSubscriber {
-    private var throttler = Throttler(minimumDelay: 1)
+    private var throttler = Throttler(minimumDelay: 5)
     weak var connection: PusherConnection? = nil
     private var candidateChannels = Set<PusherChannel>()
     private let queue = DispatchQueue(label: "ThrottleSubscriber.Queue", attributes: .concurrent)
@@ -115,7 +115,7 @@ class ThrottleSubscriber {
     func subscribedToChannel(name: String) {
         let channels = fetchCandidateChannels()
         let filterChannels = channels.filter({ $0.name == name })
-        if let channel = filterChannels.first {
+        if let channel = filterChannels.last {
             removeCandidate(channel)
         }
         exponentialBackoff.reset()

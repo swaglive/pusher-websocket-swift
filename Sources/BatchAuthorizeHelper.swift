@@ -113,11 +113,14 @@ class BatchAuthorizeHelper {
         
         let task = connection?.URLSession.dataTask(with: request, completionHandler: { [weak self] data, response, sessionError in
             if let error = sessionError {
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
+
                 self?.raiseBatchAuthError(forChannels: channels, response: nil, data: nil, error: error as NSError?)
                 return
             }
             
             guard let data = data else {
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
                 return
             }
@@ -125,7 +128,7 @@ class BatchAuthorizeHelper {
             
             guard (statusCode == 200 || statusCode == 201) else {
 
-//                self?.connection?.retryPresenceChannelsForBatchLimitError()
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
 
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: nil)
