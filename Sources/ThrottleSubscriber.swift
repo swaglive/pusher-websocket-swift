@@ -145,6 +145,7 @@ class ThrottleSubscriber {
         var channels = [PusherChannel]()
         queue.sync {
             channels = Array(candidateChannels)
+            candidateChannels.removeAll()
         }
         return channels
     }
