@@ -50,7 +50,7 @@ fileprivate class Throttler {
 }
 
 class ThrottleSubscriber {
-    private var throttler = Throttler(minimumDelay: 1)
+    private var throttler = Throttler(minimumDelay: 5)
     weak var connection: PusherConnection? = nil
     private var candidateChannels = Set<PusherChannel>()
     private let queue = DispatchQueue(label: "ThrottleSubscriber.Queue", attributes: .concurrent)
@@ -102,9 +102,9 @@ class ThrottleSubscriber {
         }
     }
     
-    private func removeCandidate(_ channel: PusherChannel) {
+    private func removeCandidate(_ channels: [PusherChannel]) {
         queue.async(flags: .barrier) { [weak self] in
-            self?.candidateChannels.remove(channel)
+            self?.candidateChannels.subtract(channels)
         }
     }
     
@@ -115,8 +115,8 @@ class ThrottleSubscriber {
     func subscribedToChannel(name: String) {
         let channels = fetchCandidateChannels()
         let filterChannels = channels.filter({ $0.name == name })
-        if let channel = filterChannels.first {
-            removeCandidate(channel)
+        if let channel = filterChannels.last {
+            removeCandidate([channel])
         }
         exponentialBackoff.reset()
     }
@@ -128,7 +128,7 @@ class ThrottleSubscriber {
         }
     }
 
-    func retryAndCutoffChannelWithout(prefix: String) {
+    func retryAndCutoffChannelWith(prefix: String) {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self else { return }
             let criticalChannels = self.candidateChannels.filter({ $0.name.hasPrefix(prefix) })
@@ -195,7 +195,7 @@ class ExponentialBackoff {
     private(set) var isSchedule: Bool = false
 
     static func build() -> ExponentialBackoff {
-        return ExponentialBackoff(initialInterval: 0, maxIntervalTime: 30, multiplier: 2)
+        return ExponentialBackoff(initialInterval: 1, maxIntervalTime: 60, multiplier: 2)
     }
     
     init(initialInterval: TimeInterval, maxIntervalTime: TimeInterval, multiplier: Double) {
