@@ -195,7 +195,7 @@ class ExponentialBackoff {
     private(set) var isSchedule: Bool = false
 
     static func build() -> ExponentialBackoff {
-        return ExponentialBackoff(initialInterval: 0, maxIntervalTime: 30, multiplier: 2)
+        return ExponentialBackoff(initialInterval: 1, maxIntervalTime: 60, multiplier: 2)
     }
     
     init(initialInterval: TimeInterval, maxIntervalTime: TimeInterval, multiplier: Double) {
