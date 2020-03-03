@@ -128,7 +128,7 @@ class ThrottleSubscriber {
         }
     }
 
-    func retryAndCutoffChannelWithout(prefix: String) {
+    func retryAndCutoffChannelWith(prefix: String) {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self else { return }
             let criticalChannels = self.candidateChannels.filter({ $0.name.hasPrefix(prefix) })
@@ -175,7 +175,6 @@ class ThrottleSubscriber {
         if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
-        removeCandidate(channels)
     }
     
     private func authorizePriorityChannel(_ channel: PusherChannel) {
