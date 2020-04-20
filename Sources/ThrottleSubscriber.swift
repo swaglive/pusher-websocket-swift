@@ -73,9 +73,8 @@ class ThrottleSubscriber {
     private func criticalChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel? {
         guard channelName.hasPrefix("presence-") else { return nil }
         let channel = buildPresenceChannel(channelName, connection: connection)
-        if isDuringRetry {
-            insertCandidate(channel)
-        } else {
+        insertCandidate(channel)
+        if !isDuringRetry {
             authorizePriorityChannel(channel)
         }
         return channel
@@ -83,9 +82,8 @@ class ThrottleSubscriber {
     
     private func nonCriticalChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel? {
         let channel = buildChannel(channelName, connection: connection)
-        if isDuringRetry {
-            insertCandidate(channel)
-        } else {
+        insertCandidate(channel)
+        if !isDuringRetry {
             authorizeIfNeeded()
         }
         return channel
