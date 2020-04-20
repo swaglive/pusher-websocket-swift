@@ -95,17 +95,10 @@ class BatchAuthorizeHelper {
     private func generateAuthForChannel(_ channel: PusherChannel, secret: String, channelData: String) -> String? {
         guard let connection = connection else { return nil }
         
-        let msg = channel.type == .presence ? "\(connection.socketId!):\(channel.name):\(channelData)" : "\(connection.socketId!):\(channel.name)"
+        let message = channel.type == .presence ? "\(connection.socketId!):\(channel.name):\(channelData)" : "\(connection.socketId!):\(channel.name)"
         
-        let secretBuff: [UInt8] = Array(secret.utf8)
-        let msgBuff: [UInt8] = Array(msg.utf8)
-        
-        if let hmac = try? HMAC(key: secretBuff, variant: .sha256).authenticate(msgBuff) {
-            let signature = Data(hmac).toHexString()
-            let auth = "\(connection.key):\(signature)".lowercased()
-            return auth
-        }
-        return nil
+        let signature = PusherCrypto.generateSHA256HMAC(secret: secret, message: message)
+        return "\(connection.key):\(signature)".lowercased()
     }
     
     fileprivate func sendBatchAuthorisationRequest(request: URLRequest, channels: [PusherChannel]) {
