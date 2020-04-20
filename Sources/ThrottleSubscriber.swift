@@ -152,7 +152,7 @@ class ThrottleSubscriber {
     private func fetchCandidateChannels() -> Array<PusherChannel> {
         var channels = [PusherChannel]()
         queue.sync {
-            let combine = Array(priorityCandidateChannels) + Array(candidateChannels)
+            let combine = Array(priorityCandidateChannels.filter({$0.authorizing == false})) + Array(candidateChannels.filter({$0.authorizing == false}) )
             channels = Array(combine.prefix(limit))
         }
         return channels

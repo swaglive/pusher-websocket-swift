@@ -33,6 +33,7 @@ open class PusherChannel: NSObject {
     open var unsentEvents = [QueuedClientEvent]()
     public let type: PusherChannelType
     public var auth: PusherAuth?
+    open var authorizing = false
 
     internal var shouldParseJSONForLegacyCallbacks: Bool {
         return connection?.options.attemptToReturnJSONObject ?? true
