@@ -27,9 +27,6 @@ fileprivate class Throttler {
     }
     
     func schedule() {
-        // Cancel any existing work item if it has not yet executed
-        workItem.cancel()
-        
         // Re-assign workItem with the new block task, resetting the previousRun time when it executes
         workItem = DispatchWorkItem() {
             [weak self] in
@@ -50,9 +47,10 @@ fileprivate class Throttler {
 }
 
 class ThrottleSubscriber {
-    private var throttler = Throttler(minimumDelay: 5)
+    private var throttler = Throttler(minimumDelay: 1)
     weak var connection: PusherConnection? = nil
     private var candidateChannels = Set<PusherChannel>()
+    private var priorityCandidateChannels = Set<PusherChannel>()
     private let queue = DispatchQueue(label: "ThrottleSubscriber.Queue", attributes: .concurrent)
     private var exponentialBackoff = ExponentialBackoff.build()
     var limit: Int = 10
@@ -60,6 +58,7 @@ class ThrottleSubscriber {
     init() {
         let executeBlock: (() -> ())? = { [weak self] in
             self?.authorizeIfNeeded()
+            self?.throttler.schedule()
         }
         
         throttler.executeBlock = executeBlock
@@ -83,28 +82,32 @@ class ThrottleSubscriber {
     }
     
     private func nonCriticalChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel? {
-        guard isDuringRetry == false else { return nil }
         let channel = buildChannel(channelName, connection: connection)
-        
-        if fetchCandidateChannels().count < limit {
+        if isDuringRetry {
             insertCandidate(channel)
-            throttler.schedule()
         } else {
             authorizeIfNeeded()
-            throttler.updatePreviousRun()
         }
         return channel
     }
 
     private func insertCandidate(_ channel: PusherChannel) {
         queue.async(flags: .barrier) { [weak self] in
-            self?.candidateChannels.insert(channel)
+            if channel.isPriority {
+                self?.priorityCandidateChannels.insert(channel)
+            } else {
+                self?.candidateChannels.insert(channel)
+            }
         }
     }
     
-    private func removeCandidate(_ channels: [PusherChannel]) {
+    private func removeCandidate(_ channel: PusherChannel) {
         queue.async(flags: .barrier) { [weak self] in
-            self?.candidateChannels.subtract(channels)
+            if channel.isPriority {
+                self?.priorityCandidateChannels.remove(channel)
+            } else {
+                self?.candidateChannels.remove(channel)
+            }
         }
     }
     
@@ -113,10 +116,8 @@ class ThrottleSubscriber {
     }
     
     func subscribedToChannel(name: String) {
-        let channels = fetchCandidateChannels()
-        let filterChannels = channels.filter({ $0.name == name })
-        if let channel = filterChannels.last {
-            removeCandidate([channel])
+        if let channel = allCandidateChannels().first(where: { $0.name == name }) {
+            removeCandidate(channel)
         }
         exponentialBackoff.reset()
     }
@@ -124,27 +125,36 @@ class ThrottleSubscriber {
     func attemptSubscriptionsToUnsubscribedChannels() {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self, let connection = self.connection else { return }
-            self.candidateChannels = self.candidateChannels.union(connection.channels.list)
+            for channel in connection.channels.list {
+                if channel.isPriority {
+                    self.priorityCandidateChannels.insert(channel)
+                } else {
+                    self.candidateChannels.insert(channel)
+                }
+            }
         }
     }
 
-    func retryAndCutoffChannelWith(prefix: String) {
-        queue.async(flags: .barrier) { [weak self] in
-            guard let self = self else { return }
-            let criticalChannels = self.candidateChannels.filter({ $0.name.hasPrefix(prefix) })
-            self.candidateChannels = criticalChannels
-            if self.candidateChannels.count > 0 {
-                self.exponentialBackoff.schedule()
-            }
+    func retryAuthorizingChannels() {
+        if allCandidateChannels().count > 0 {
+            exponentialBackoff.schedule()
         }
     }
     
     //MARK: - Private Methods
+    private func allCandidateChannels() -> Array<PusherChannel> {
+        var channels = [PusherChannel]()
+        queue.sync {
+            channels = Array(priorityCandidateChannels.union(candidateChannels))
+        }
+        return channels
+    }
     
     private func fetchCandidateChannels() -> Array<PusherChannel> {
         var channels = [PusherChannel]()
         queue.sync {
-            channels = Array(candidateChannels)
+            let combine = Array(priorityCandidateChannels) + Array(candidateChannels)
+            channels = Array(combine.prefix(limit))
         }
         return channels
     }
@@ -179,10 +189,16 @@ class ThrottleSubscriber {
     
     private func authorizePriorityChannel(_ channel: PusherChannel) {
         guard let connection = self.connection, connection.connectionState == .connected else { return }
-        let channels =  Array([channel])
+        let channels = Array([channel])
         if !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
+    }
+}
+
+extension PusherChannel {
+    var isPriority: Bool {
+        type == .presence
     }
 }
 

@@ -916,7 +916,7 @@ import Starscream
     }
     
     func retryPresenceChannelsForBatchLimitError() {
-        throttleSubscriber.retryAndCutoffChannelWith(prefix: "presence-")
+        throttleSubscriber.retryAuthorizingChannels()
     }
 }
 
