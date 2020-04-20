@@ -62,6 +62,7 @@ class ThrottleSubscriber {
         }
         
         throttler.executeBlock = executeBlock
+        throttler.schedule()
         exponentialBackoff.executeBlock = executeBlock
     }
     
