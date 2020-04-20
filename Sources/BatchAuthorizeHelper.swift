@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CryptoSwift
 
 extension NSNotification.Name {
     public static var PusherInitPrivateChannelData: NSNotification.Name {
