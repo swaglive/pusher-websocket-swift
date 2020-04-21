@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CryptoSwift
 
 extension NSNotification.Name {
     public static var PusherInitPrivateChannelData: NSNotification.Name {
@@ -59,6 +58,7 @@ class BatchAuthorizeHelper {
     private func raiseBatchAuthError(forChannels channels: [PusherChannel], response: URLResponse?, data: String?, error: NSError?) {
         guard !channels.isEmpty else { return }
         channels.forEach { [weak self](channel) in
+            channel.authorizing = false
             self?.connection?.authorizationError(forChannel: channel.name, response: response, data: data, error: error)
         }
     }
@@ -95,17 +95,10 @@ class BatchAuthorizeHelper {
     private func generateAuthForChannel(_ channel: PusherChannel, secret: String, channelData: String) -> String? {
         guard let connection = connection else { return nil }
         
-        let msg = channel.type == .presence ? "\(connection.socketId!):\(channel.name):\(channelData)" : "\(connection.socketId!):\(channel.name)"
+        let message = channel.type == .presence ? "\(connection.socketId!):\(channel.name):\(channelData)" : "\(connection.socketId!):\(channel.name)"
         
-        let secretBuff: [UInt8] = Array(secret.utf8)
-        let msgBuff: [UInt8] = Array(msg.utf8)
-        
-        if let hmac = try? HMAC(key: secretBuff, variant: .sha256).authenticate(msgBuff) {
-            let signature = Data(hmac).toHexString()
-            let auth = "\(connection.key):\(signature)".lowercased()
-            return auth
-        }
-        return nil
+        let signature = PusherCrypto.generateSHA256HMAC(secret: secret, message: message)
+        return "\(connection.key):\(signature)".lowercased()
     }
     
     fileprivate func sendBatchAuthorisationRequest(request: URLRequest, channels: [PusherChannel]) {
@@ -113,31 +106,28 @@ class BatchAuthorizeHelper {
         
         let task = connection?.URLSession.dataTask(with: request, completionHandler: { [weak self] data, response, sessionError in
             if let error = sessionError {
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
-
                 self?.raiseBatchAuthError(forChannels: channels, response: nil, data: nil, error: error as NSError?)
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
             
             guard let data = data else {
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             
             guard (statusCode == 200 || statusCode == 201) else {
-
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
-
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: nil)
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
             
             guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []), let json = jsonObject as? [String: AnyObject] else {
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
+                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
 
@@ -206,6 +196,9 @@ class BatchAuthorizeHelper {
         let allChannels = Set(channels)
         let exceptNormalsSet = allChannels.subtracting(normalChannels)
         let exceptNormals = Array(exceptNormalsSet)
+        for channel in exceptNormals {
+            channel.authorizing = true
+        }
         
         // Don't go through normal auth flow if auth value provided
         if let auth = auth {
