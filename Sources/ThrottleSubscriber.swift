@@ -180,7 +180,9 @@ class ThrottleSubscriber {
     }
     
     private func authorizeIfNeeded() {
-        guard let connection = self.connection, connection.connectionState == .connected else { return }
+        guard let connection = self.connection,
+            connection.connectionState == .connected,
+            !isDuringRetry else { return }
         let channels = fetchCandidateChannels()
         if channels.count > 0, !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
@@ -188,7 +190,9 @@ class ThrottleSubscriber {
     }
     
     private func authorizePriorityChannel(_ channel: PusherChannel) {
-        guard let connection = self.connection, connection.connectionState == .connected else { return }
+        guard let connection = self.connection,
+            connection.connectionState == .connected,
+            !isDuringRetry else { return }
         let channels = Array([channel])
         if channels.count > 0, !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
