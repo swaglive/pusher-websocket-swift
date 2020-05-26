@@ -152,7 +152,10 @@ class BatchAuthorizeHelper {
             }
         }
         
-        raiseBatchAuthError(forChannels: failureChannels, response: nil, data: nil, error: nil)
+        if failureChannels.count > 0 {
+            raiseBatchAuthError(forChannels: failureChannels, response: nil, data: nil, error: nil)
+            connection?.retryPresenceChannelsForBatchLimitError()
+        }
     }
 
     
