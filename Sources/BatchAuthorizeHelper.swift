@@ -146,6 +146,7 @@ class BatchAuthorizeHelper {
         
         for channel in responseChannels {
             if let payload = json[channel.name] as? [String: AnyObject] {
+                channel.authorizing = false
                 connection?.authorizeResponse(json: payload, channel: channel)
                 forwardPrivateChannelDataIfRecognize(payload: payload, channel: channel)
                 forwardPresenceChannelDataIfRecognize(payload: payload, channel: channel)
