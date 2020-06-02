@@ -126,6 +126,7 @@ class ThrottleSubscriber {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self, let connection = self.connection else { return }
             for channel in connection.channels.list {
+                guard channel.subscribed == false else { continue }
                 if channel.isPriority {
                     self.priorityCandidateChannels.insert(channel)
                 } else {
