@@ -26,7 +26,6 @@ import Starscream
     var intentionalDisconnect: Bool = false
     private var throttleSubscriber = ThrottleSubscriber()
     private var batchAuthorizeHelper = BatchAuthorizeHelper()
-    private let errorDomain: String = "com.swag.pusher.error"
 
     func batchRequests(max: Int) {
         throttleSubscriber.limit = max
@@ -807,11 +806,14 @@ import Starscream
         - parameter channel: The PusherChannel to authenticate subsciption for
      
         for custom error code:
-         -1001
+         -1001: data is nil,
+         -1002: response is not 200 or 201
+         -1003: data convert failed
      
     */
     fileprivate func sendAuthorisationRequest(request: URLRequest, channel: PusherChannel) {
         let task = URLSession.dataTask(with: request, completionHandler: { data, response, sessionError in
+            let errorDomain: String = "com.swag.pusher.error"
             if let error = sessionError {
                 print("Error authorizing channel [\(channel.name)]: \(error)")
                 self.handleAuthorizationError(forChannel: channel.name, response: response, data: nil, error: error as NSError?)
