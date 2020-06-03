@@ -26,6 +26,7 @@ import Starscream
     var intentionalDisconnect: Bool = false
     private var throttleSubscriber = ThrottleSubscriber()
     private var batchAuthorizeHelper = BatchAuthorizeHelper()
+    private let errorDomain: String = "com.swag.pusher.error"
 
     func batchRequests(max: Int) {
         throttleSubscriber.limit = max
@@ -804,6 +805,10 @@ import Starscream
 
         - parameter request: The request to send
         - parameter channel: The PusherChannel to authenticate subsciption for
+     
+        for custom error code:
+         -1001
+     
     */
     fileprivate func sendAuthorisationRequest(request: URLRequest, channel: PusherChannel) {
         let task = URLSession.dataTask(with: request, completionHandler: { data, response, sessionError in
@@ -815,20 +820,26 @@ import Starscream
 
             guard let data = data else {
                 print("Error authorizing channel [\(channel.name)]")
-                self.handleAuthorizationError(forChannel: channel.name, response: response, data: nil, error: nil)
+                let error = NSError(domain: errorDomain, code: -1001, userInfo: ["reason": "mal data",
+                                                                                 "channel": channel.name])
+                self.handleAuthorizationError(forChannel: channel.name, response: response, data: nil, error: error)
                 return
             }
 
             guard let httpResponse = response as? HTTPURLResponse, (httpResponse.statusCode == 200 || httpResponse.statusCode == 201) else {
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 print ("Error authorizing channel [\(channel.name)]: \(String(describing: dataString))")
-                self.handleAuthorizationError(forChannel: channel.name, response: response, data: dataString, error: nil)
+                let error = NSError(domain: errorDomain, code: -1002, userInfo: ["reason": dataString ?? "incorrect response",
+                                                                                 "channel": channel.name])
+                self.handleAuthorizationError(forChannel: channel.name, response: response, data: dataString, error: error)
                 return
             }
 
             guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []), let json = jsonObject as? [String: AnyObject] else {
                 print("Error authorizing channel [\(channel.name)]")
-                self.handleAuthorizationError(forChannel: channel.name, response: httpResponse, data: nil, error: nil)
+                let error = NSError(domain: errorDomain, code: -1003, userInfo: ["reason": "json convert failed",
+                                                                                 "channel": channel.name])
+                self.handleAuthorizationError(forChannel: channel.name, response: httpResponse, data: nil, error: error)
                 return
             }
             self.handleAuthResponse(json: json, channel: channel)
