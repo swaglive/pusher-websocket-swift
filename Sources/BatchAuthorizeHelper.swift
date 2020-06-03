@@ -105,6 +105,7 @@ class BatchAuthorizeHelper {
         print("[SEND BATCH REQUEST] \(String(describing: request.url))")
         
         let task = connection?.URLSession.dataTask(with: request, completionHandler: { [weak self] data, response, sessionError in
+            let errorDomain: String = "com.swag.pusher.error"
             if let error = sessionError {
                 self?.raiseBatchAuthError(forChannels: channels, response: nil, data: nil, error: error as NSError?)
                 self?.connection?.retryPresenceChannelsForBatchLimitError()
@@ -112,7 +113,10 @@ class BatchAuthorizeHelper {
             }
             
             guard let data = data else {
-                self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
+                let channelsName = channels.map({ $0.name }).joined(separator: ",")
+                let error = NSError(domain: errorDomain, code: -1001, userInfo: ["reason": "AuthorisationRequest mal data",
+                                                                                 "channel": channelsName])
+                self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: error)
                 self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
@@ -120,13 +124,20 @@ class BatchAuthorizeHelper {
             
             guard (statusCode == 200 || statusCode == 201) else {
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
-                self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: nil)
+                let channelsName = channels.map({ $0.name }).joined(separator: ",")
+                let error = NSError(domain: errorDomain, code: -1002, userInfo: ["reason": "AuthorisationRequest  \(dataString ?? "incorrect response")",
+                                                                                 "channel": channelsName])
+                self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: error)
                 self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
             
             guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []), let json = jsonObject as? [String: AnyObject] else {
-                self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: nil)
+                let channelsName = channels.map({ $0.name }).joined(separator: ",")
+                
+                let error = NSError(domain: errorDomain, code: -1003, userInfo: ["reason": "AuthorisationRequest json convert failed",
+                                                                                 "channel": channelsName])
+                self?.raiseBatchAuthError(forChannels: channels, response: response, data: nil, error: error)
                 self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
@@ -154,7 +165,10 @@ class BatchAuthorizeHelper {
         }
         
         if failureChannels.count > 0 {
-            raiseBatchAuthError(forChannels: failureChannels, response: nil, data: nil, error: nil)
+            let channelsName = channels.map({ $0.name }).joined(separator: ",")
+            let error = NSError(domain: "com.swag.pusher.error", code: -1004, userInfo: ["reason": "not get authorization",
+                                                                             "channel": channelsName])
+            raiseBatchAuthError(forChannels: failureChannels, response: nil, data: nil, error: error)
             connection?.retryPresenceChannelsForBatchLimitError()
         }
     }
