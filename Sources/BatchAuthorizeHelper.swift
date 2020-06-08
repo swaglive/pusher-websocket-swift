@@ -126,7 +126,7 @@ class BatchAuthorizeHelper {
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 let channelsName = channels.map({ $0.name }).joined(separator: ",")
                 let error = NSError(domain: errorDomain, code: -1002, userInfo: ["reason": "AuthorisationRequest  \(dataString ?? "incorrect response")",
-                                                                                 "channel": channelsName])
+                    "channel": channelsName, "response code": statusCode ?? 0])
                 self?.raiseBatchAuthError(forChannels: channels, response: response, data: dataString, error: error)
                 self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
