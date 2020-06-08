@@ -832,7 +832,7 @@ import Starscream
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
                 print ("Error authorizing channel [\(channel.name)]: \(String(describing: dataString))")
                 let error = NSError(domain: errorDomain, code: -1002, userInfo: ["reason": dataString ?? "incorrect response",
-                                                                                 "channel": channel.name])
+                                                                                 "channel": channel.name, "response code": (response as? HTTPURLResponse)?.statusCode ?? 0])
                 self.handleAuthorizationError(forChannel: channel.name, response: response, data: dataString, error: error)
                 return
             }
