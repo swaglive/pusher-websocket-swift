@@ -217,6 +217,8 @@ import Starscream
                 ] as [String : Any]
             )
             self.channels.remove(name: channelName)
+        } else {
+            throttleSubscriber.unsubscribeChannel(name: channelName)
         }
     }
     
