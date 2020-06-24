@@ -115,11 +115,19 @@ class ThrottleSubscriber {
     }
     
     func subscribedToChannel(name: String) {
+        removeExistingChannel(name)
+        exponentialBackoff.reset()
+    }
+    
+    func unsubscribeChannel(name: String) {
+        removeExistingChannel(name)
+    }
+    
+    private func removeExistingChannel(_ name: String) {
         if let channel = allCandidateChannels().first(where: { $0.name == name }) {
             channel.authorizing = false
             removeCandidate(channel)
         }
-        exponentialBackoff.reset()
     }
     
     func attemptSubscriptionsToUnsubscribedChannels() {
