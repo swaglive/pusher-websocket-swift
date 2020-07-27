@@ -840,24 +840,14 @@ import Starscream
             }
 
             guard let data = data else {
-                // swag
-//                print("Error authorizing channel [\(channel.name)]")
-//                let error = NSError(domain: errorDomain, code: -1001, userInfo: ["reason": "mal data",
-//                                                                                 "channel": channel.name])
-//                self.handleAuthorizationError(forChannel: channel.name, response: response, data: nil, error: error)
-                let message = "Error authorizing channel [\(channel.name)]"
+                let message = "Error authorizing channel [\(channel.name)], reason: mal data"
                 completionHandler(nil, PusherAuthError(kind: .invalidAuthResponse, message: message, response: response))
                 return
             }
 
             guard let httpResponse = response as? HTTPURLResponse, (httpResponse.statusCode == 200 || httpResponse.statusCode == 201) else {
                 let dataString = String(data: data, encoding: String.Encoding.utf8)
-                //swag
-//                print ("Error authorizing channel [\(channel.name)]: \(String(describing: dataString))")
-//                let error = NSError(domain: errorDomain, code: -1002, userInfo: ["reason": dataString ?? "incorrect response",
-//                                                                                 "channel": channel.name, "response code": (response as? HTTPURLResponse)?.statusCode ?? 0])
-//                self.handleAuthorizationError(forChannel: channel.name, response: response, data: dataString, error: error)
-                let message = "Error authorizing channel [\(channel.name)]: \(String(describing: dataString))"
+                let message = "Error authorizing channel [\(channel.name)]: \(String(describing: dataString)) \((response as? HTTPURLResponse)?.statusCode ?? 0)"
                 completionHandler(nil, PusherAuthError(kind: .invalidAuthResponse, message: message, response: response, data: dataString))
                 return
             }
@@ -884,35 +874,24 @@ import Starscream
 
             task.resume()
     }
-//                print("Error authorizing channel [\(channel.name)]")
-//                let error = NSError(domain: errorDomain, code: -1003, userInfo: ["reason": "json convert failed",
-//                                                                                 "channel": channel.name])
-//                self.handleAuthorizationError(forChannel: channel.name, response: httpResponse, data: nil, error: error)
-//                return
-//            }
-//            self.handleAuthResponse(json: json, channel: channel)
-//        })
-//
-//        task.resume()
-//    }
 
     /**
-     swag
      Handle authorizer request response and call appropriate handle function
      - parameter json:    The auth response as a dictionary
      - parameter channel: The PusherChannel to authorize subsciption for
      */
-//    fileprivate func handleAuthResponse(
-//        json: [String: AnyObject],
-//        channel: PusherChannel
-//    ) {
-//        if let auth = json["auth"] as? String {
-//            handleAuthInfo(
-//                authString: auth,
-//                channelData: json["channel_data"] as? String,
-//                channel: channel)
-//        }
-//    }
+    fileprivate
+    func handleAuthResponse(json: [String: AnyObject], channel: PusherChannel) {
+        guard let auth = json["auth"] as? String else {
+            return
+        }
+        handleAuthInfo(
+            pusherAuth: PusherAuth(
+                auth: auth,
+                channelData: json["channel_data"] as? String)
+            , channel: channel
+        )
+    }
 
     /**
         Handle authorizer info and call appropriate handle function
@@ -992,7 +971,11 @@ extension PusherConnection: ExposureAuthorisationHelper {
     }
     
     func handleAuthorizeInfo(authString: String, channelData: String?, channel: PusherChannel) {
-        handleAuthInfo(authString: authString, channelData: channelData, channel: channel)
+        handleAuthInfo(pusherAuth: PusherAuth(
+            auth: authString,
+            channelData: authString)
+            , channel: channel
+        )
     }
     
     func privateChannelAuth(authValue auth: String, channel: PusherChannel) {
@@ -1002,8 +985,10 @@ extension PusherConnection: ExposureAuthorisationHelper {
     func presenceChannelAuth(authValue: String, channel: PusherChannel, channelData: String) {
         handlePresenceChannelAuth(authValue: authValue, channel: channel, channelData: channelData)
     }
-    func authorizationError(forChannel channelName: String, response: URLResponse?, data: String?, error: NSError?) {
-        handleAuthorizationError(forChannel: channelName, response: response, data: data, error: error)
+    
+    func authorizationError(forChannel channelName: String, message: String, response: URLResponse?, data: String?, error: NSError?) {
+        let authError = PusherAuthError(kind: .invalidAuthResponse, message: message, response: response, data: data, error: error)
+        handleAuthorizationError(forChannel: channelName, error: authError)
     }
 
     func authorizeResponse(json: [String : AnyObject], channel: PusherChannel) {
