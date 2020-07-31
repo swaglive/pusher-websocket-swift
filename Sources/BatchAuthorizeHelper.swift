@@ -152,15 +152,26 @@ class BatchAuthorizeHelper {
     
     fileprivate func handleBatchAuthResponse(json: [String: AnyObject], channels: [PusherChannel]) {
         
-        let responseChannels = channels.compactMap({ json.keys.contains($0.name) ? $0 : nil })
+        let authResults = json.compactMap { AuthResultItem.build(channel: $0.key, payload: $0.value)}
+        let successList: [String] = authResults.compactMap({ $0.auth != nil ? $0.channel : nil })
+        
+        let responseChannels = channels.compactMap({ successList.contains($0.name) ? $0 : nil })
         let failureChannels = Array( Set(channels).subtracting(responseChannels) )
         
         for channel in responseChannels {
             if let payload = json[channel.name] as? [String: AnyObject] {
                 channel.authorizing = false
                 connection?.authorizeResponse(json: payload, channel: channel)
-                forwardPrivateChannelDataIfRecognize(payload: payload, channel: channel)
-                forwardPresenceChannelDataIfRecognize(payload: payload, channel: channel)
+                
+                if let authItem = authResults.filter({ $0.channel == channel.name }).first, let channelData = authItem.channelData {
+                    let userInfo = convertToUserInfo(channelName: channel.name, channelData: channelData)
+                    if channel.type == .private {
+                        NotificationCenter.default.post(name: NSNotification.Name.PusherInitPrivateChannelData, object: nil, userInfo: userInfo)
+                    }
+                    if channel.type == .presence {
+                        NotificationCenter.default.post(name: NSNotification.Name.PusherInitPresenceChannelData, object: nil, userInfo: userInfo)
+                    }
+                }
             }
         }
         
@@ -172,34 +183,13 @@ class BatchAuthorizeHelper {
             connection?.retryPresenceChannelsForBatchLimitError()
         }
     }
-
     
-    fileprivate func forwardPrivateChannelDataIfRecognize(payload: [String: AnyObject], channel: PusherChannel) {
-        guard channel.type == .private else { return }
-        if let channelData = payload["channel_data"] as? String {
-            let userInfo = convertToUserInfo(channelName: channel.name, channelData: channelData)
-            NotificationCenter.default.post(name: NSNotification.Name.PusherInitPrivateChannelData, object: nil, userInfo: userInfo)
-        }
-    }
-    
-    fileprivate func forwardPresenceChannelDataIfRecognize(payload: [String: AnyObject], channel: PusherChannel) {
-        guard channel.type == .presence else { return }
-        if let channelData = payload["channel_data"] as? String {
-            let userInfo = convertToUserInfo(channelName: channel.name, channelData: channelData)
-            NotificationCenter.default.post(name: NSNotification.Name.PusherInitPresenceChannelData, object: nil, userInfo: userInfo)
-        }
-    }
-
-    private func convertToUserInfo(channelName: String, channelData: String) -> [String: AnyObject] {
+    private func convertToUserInfo(channelName: String, channelData: [String: AnyObject]) -> [String: AnyObject] {
         var userInfo: [String: AnyObject] = ["channel": channelName as AnyObject]
-        if let data = channelData.data(using: .utf8),
-            let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
-            let json = jsonObject as? [String: AnyObject]  {
-            userInfo.merge(json) { $1 }
-        }
+        userInfo.merge(channelData) { $1 }
         return userInfo
-    }    
-    
+    }
+        
     func authorize(_ channels: [PusherChannel], auth: PusherAuth? = nil) -> Bool {
         guard let connection = connection, connection.connectionState == .connected else { return false }
         
