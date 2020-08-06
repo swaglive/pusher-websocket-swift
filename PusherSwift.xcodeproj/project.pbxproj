@@ -72,6 +72,8 @@
 		D005A237236ABBE5006F811C /* PusherError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43002346F5ED00C1E26F /* PusherError.swift */; };
 		D046332F234330D7002E334F /* ThrottleSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D046332E234330D7002E334F /* ThrottleSubscriber.swift */; };
 		D0463332234367C9002E334F /* BatchAuthorizeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */; };
+		D0AE07B424DC16A000DD9ECC /* ThrottleSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D046332E234330D7002E334F /* ThrottleSubscriber.swift */; };
+		D0AE07B624DC16A500DD9ECC /* BatchAuthorizeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */; };
 		D0FF430C2346F8BD00C1E26F /* PusherEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43062346F68D00C1E26F /* PusherEventTests.swift */; };
 		D32DBA1B2445BCD60064DA56 /* PrivateEncryptedChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32DBA192445BCD60064DA56 /* PrivateEncryptedChannelTests.swift */; };
 		E2498293231E612700CFBBD6 /* PusherError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2498292231E612700CFBBD6 /* PusherError.swift */; };
@@ -633,12 +635,14 @@
 				73D8A1E82435E5F3001FDE05 /* PusherError.swift in Sources */,
 				73D8A2292435F329001FDE05 /* PusherDecryptor.swift in Sources */,
 				73D8A1EB2435E5F3001FDE05 /* PusherCrypto.swift in Sources */,
+				D0AE07B624DC16A500DD9ECC /* BatchAuthorizeHelper.swift in Sources */,
 				E2B21F0E243F5DC10049A35B /* PusherWebsocketDelegate.swift in Sources */,
 				73D8A1EC2435E5F3001FDE05 /* PusherChannel.swift in Sources */,
 				73D8A1ED2435E5F3001FDE05 /* Authorizer.swift in Sources */,
 				73D8A1EE2435E5F3001FDE05 /* PusherChannels.swift in Sources */,
 				73D8A1EF2435E5F3001FDE05 /* PusherParser.swift in Sources */,
 				73D8A1F02435E5F3001FDE05 /* PusherGlobalChannel.swift in Sources */,
+				D0AE07B424DC16A000DD9ECC /* ThrottleSubscriber.swift in Sources */,
 				E2B21F02243F5B1E0049A35B /* PusherEventFactory.swift in Sources */,
 				73D8A1F12435E5F3001FDE05 /* PusherClientOptions.swift in Sources */,
 				E2B21F08243F5B860049A35B /* PusherEvent.swift in Sources */,
