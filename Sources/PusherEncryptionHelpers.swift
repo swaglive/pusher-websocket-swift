@@ -7,7 +7,9 @@ struct PusherEncryptionHelpers {
     }
 
     public static func isEncryptedChannel(channelName: String?) -> Bool {
-        return channelName?.starts(with: "private-encrypted-") ?? false
+        return channelName?.starts(with: "private-enc-") ||
+            channelName?.starts(with: "presence-enc-") ||
+            channelName?.starts(with: "private-encrypted-") ?? false
     }
 
     public static func isPusherSystemEvent(eventName: String) -> Bool {
