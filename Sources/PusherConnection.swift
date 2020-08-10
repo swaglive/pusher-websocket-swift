@@ -888,7 +888,8 @@ import Starscream
         handleAuthInfo(
             pusherAuth: PusherAuth(
                 auth: auth,
-                channelData: json["channel_data"] as? String)
+                channelData: json["channel_data"] as? String,
+                sharedSecret: json["shared_secret"] as? String)
             , channel: channel
         )
     }
