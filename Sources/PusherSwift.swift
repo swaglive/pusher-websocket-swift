@@ -13,6 +13,7 @@ let CLIENT_NAME = "pusher-websocket-swift"
             self.connection.delegate = newValue
         }
     }
+    private let channelConverter: PusherConversionProtocol?
     private let key: String
 
     /**
@@ -20,11 +21,17 @@ let CLIENT_NAME = "pusher-websocket-swift"
 
         - parameter key:          The Pusher app key
         - parameter options:      An optional collection of options
-
+        - parameter converter:    The channel name converter, which is a adding enc key word for each channel name.
+     
         - returns: A new Pusher client instance
     */
-    public init(key: String, options: PusherClientOptions = PusherClientOptions()) {
+    public init(
+        key: String,
+        options: PusherClientOptions = PusherClientOptions(),
+        converter: PusherConversionProtocol? = nil
+    ) {
         self.key = key
+        self.channelConverter = converter
         let urlString = constructUrl(key: key, options: options)
         let ws = WebSocket(url: URL(string: urlString)!)
         connection = PusherConnection(key: key, socket: ws, url: urlString, options: options)
@@ -51,7 +58,9 @@ let CLIENT_NAME = "pusher-websocket-swift"
         onMemberRemoved: ((PusherPresenceChannelMember) -> ())? = nil
     ) -> PusherChannel {
 
-        let isEncryptedChannel = PusherEncryptionHelpers.isEncryptedChannel(channelName: channelName)
+        let convertedChannelName = getConvertedChannelNameIfNeeded(channelName)
+        
+        let isEncryptedChannel = PusherEncryptionHelpers.isEncryptedChannel(channelName: convertedChannelName)
 
         if isEncryptedChannel && !PusherDecryptor.isDecryptionAvailable(){
             let error = """
@@ -75,7 +84,7 @@ let CLIENT_NAME = "pusher-websocket-swift"
         }
 
         return self.connection.subscribe(
-            channelName: channelName,
+            channelName: convertedChannelName,
             auth: auth,
             onMemberAdded: onMemberAdded,
             onMemberRemoved: onMemberRemoved
@@ -103,8 +112,8 @@ let CLIENT_NAME = "pusher-websocket-swift"
         onMemberAdded: ((PusherPresenceChannelMember) -> ())? = nil,
         onMemberRemoved: ((PusherPresenceChannelMember) -> ())? = nil
     ) -> PusherPresenceChannel {
-        return self.connection.subscribeToPresenceChannel(
-            channelName: channelName,
+         self.connection.subscribeToPresenceChannel(
+            channelName: getConvertedChannelNameIfNeeded(channelName),
             auth: auth,
             onMemberAdded: onMemberAdded,
             onMemberRemoved: onMemberRemoved
@@ -117,7 +126,7 @@ let CLIENT_NAME = "pusher-websocket-swift"
         - parameter channelName: The name of the channel to unsubscribe from
     */
     open func unsubscribe(_ channelName: String) {
-        self.connection.unsubscribe(channelName: channelName)
+        self.connection.unsubscribe(channelName: getConvertedChannelNameIfNeeded(channelName))
     }
 
     /**
@@ -187,6 +196,10 @@ let CLIENT_NAME = "pusher-websocket-swift"
 extension Pusher {
     open func batchRequests(max: Int) {
         connection.batchRequests(max: max)
+    }
+    
+    private func getConvertedChannelNameIfNeeded(_ channelName: String) -> String {
+        channelConverter?.encryptChannelNameIfNeeded(channelName) ?? channelName
     }
 }
 
