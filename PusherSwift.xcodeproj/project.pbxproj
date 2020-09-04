@@ -66,6 +66,8 @@
 		73D8A2292435F329001FDE05 /* PusherDecryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D8A2012435E686001FDE05 /* PusherDecryptor.swift */; };
 		73D8A22D2435F381001FDE05 /* PusherEventFactory+DecryptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D8A22C2435F381001FDE05 /* PusherEventFactory+DecryptionTests.swift */; };
 		73D8A22F2435F393001FDE05 /* PusherEventFactory+DecryptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D8A22E2435F393001FDE05 /* PusherEventFactory+DecryptionTests.swift */; };
+		83E359BD2501F5B20018D582 /* PusherConversionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E359BC2501F5B20018D582 /* PusherConversionProtocol.swift */; };
+		83E359BE2501F5B20018D582 /* PusherConversionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E359BC2501F5B20018D582 /* PusherConversionProtocol.swift */; };
 		D0037636236A85B000E5992B /* (null) in Sources */ = {isa = PBXBuildFile; };
 		D005A235236ABBDF006F811C /* PusherEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43022346F60500C1E26F /* PusherEvent.swift */; };
 		D005A236236ABBE3006F811C /* PusherParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FF43042346F62800C1E26F /* PusherParser.swift */; };
@@ -151,6 +153,7 @@
 		73D8A2262435F24E001FDE05 /* PusherSwiftWithEncryptionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PusherSwiftWithEncryptionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		73D8A22C2435F381001FDE05 /* PusherEventFactory+DecryptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PusherEventFactory+DecryptionTests.swift"; sourceTree = "<group>"; };
 		73D8A22E2435F393001FDE05 /* PusherEventFactory+DecryptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PusherEventFactory+DecryptionTests.swift"; sourceTree = "<group>"; };
+		83E359BC2501F5B20018D582 /* PusherConversionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PusherConversionProtocol.swift; sourceTree = "<group>"; };
 		D046332E234330D7002E334F /* ThrottleSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ThrottleSubscriber.swift; path = Sources/ThrottleSubscriber.swift; sourceTree = SOURCE_ROOT; };
 		D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchAuthorizeHelper.swift; sourceTree = "<group>"; };
 		D0750CD42327451D009BE121 /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoSwift.framework; path = Carthage/Build/iOS/CryptoSwift.framework; sourceTree = "<group>"; };
@@ -254,6 +257,7 @@
 				33831CD61A9CFFF200B124F1 /* PusherSwift.h */,
 				D046332E234330D7002E334F /* ThrottleSubscriber.swift */,
 				D0463331234367C9002E334F /* BatchAuthorizeHelper.swift */,
+				83E359BC2501F5B20018D582 /* PusherConversionProtocol.swift */,
 				E2B21F06243F5B860049A35B /* PusherEvent.swift */,
 				E2498292231E612700CFBBD6 /* PusherError.swift */,
 				E2F40FA423ED782B00985C40 /* PusherCrypto.swift */,
@@ -571,6 +575,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				83E359BD2501F5B20018D582 /* PusherConversionProtocol.swift in Sources */,
 				E26B8606244A079E00735172 /* PusherEncryptionHelpers.swift in Sources */,
 				E2B21F0A243F5BB50049A35B /* PusherConnection.swift in Sources */,
 				33BA54201D9035BD00CD853B /* PusherDelegate.swift in Sources */,
@@ -644,6 +649,7 @@
 				73D8A1F02435E5F3001FDE05 /* PusherGlobalChannel.swift in Sources */,
 				D0AE07B424DC16A000DD9ECC /* ThrottleSubscriber.swift in Sources */,
 				E2B21F02243F5B1E0049A35B /* PusherEventFactory.swift in Sources */,
+				83E359BE2501F5B20018D582 /* PusherConversionProtocol.swift in Sources */,
 				73D8A1F12435E5F3001FDE05 /* PusherClientOptions.swift in Sources */,
 				E2B21F08243F5B860049A35B /* PusherEvent.swift in Sources */,
 				E2B21F00243F5B1E0049A35B /* PusherEventQueue.swift in Sources */,
