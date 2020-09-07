@@ -8,7 +8,6 @@
 import Foundation
 
 public protocol PusherConversionProtocol {
-    var blackList: [String] { get }
     var whiteList: [String] { get }
     var encryptKey: String { get }
     func encryptChannelNameIfNeeded(_ channelName: String) -> String
