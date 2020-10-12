@@ -28,7 +28,7 @@ fileprivate class Throttler {
     
     func schedule() {
         debugPrint("\(Date())  Throttler begin scheduled")
-        workItem.cancel()
+//        workItem.cancel()
         // Re-assign workItem with the new block task, resetting the previousRun time when it executes
         workItem = DispatchWorkItem() {
             [weak self] in
@@ -66,7 +66,7 @@ class ThrottleSubscriber {
         
         throttler.executeBlock = executeBlock
         throttler.schedule()
-        exponentialBackoff.executeBlock = executeBlock
+//        exponentialBackoff.executeBlock = executeBlock
     }
     
     func subscribe(channelName: String) -> PusherChannel? {
