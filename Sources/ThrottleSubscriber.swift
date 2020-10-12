@@ -28,6 +28,7 @@ fileprivate class Throttler {
     
     func schedule() {
         // Re-assign workItem with the new block task, resetting the previousRun time when it executes
+        workItem.cancel()
         workItem = DispatchWorkItem() {
             [weak self] in
             self?.updatePreviousRun()
@@ -104,7 +105,7 @@ class ThrottleSubscriber {
     }
     
     private var isDuringRetry: Bool {
-        return exponentialBackoff.isSchedule
+        exponentialBackoff.isDuringScheduled
     }
     
     func subscribedToChannel(name: String) {
@@ -221,8 +222,16 @@ class ExponentialBackoff {
     let multiplier: Double
     var executeBlock: (() -> ())?
     private(set) var count: TimeInterval = 0
-    private(set) var isSchedule: Bool = false
-
+    private let queue = DispatchQueue(label: "ExponentialBackoff.queue", attributes: .concurrent)
+    private var workItem: DispatchWorkItem = DispatchWorkItem(block: {})
+    private var isSchedule: Bool = false
+    var isDuringScheduled: Bool {
+        var result: Bool = false
+        queue.sync {
+            result = isSchedule
+        }
+        return result
+    }
     static func build() -> ExponentialBackoff {
         return ExponentialBackoff(initialInterval: 1, maxIntervalTime: 60, multiplier: 2)
     }
@@ -244,23 +253,37 @@ class ExponentialBackoff {
     }
     
     func schedule() {
-        guard isSchedule == false else { return }
-        isSchedule.toggle()
-        let interval = next()
-        print("[\(Date()) schedule retry after: \(interval)]")
-        DispatchQueue.main.asyncAfter(deadline: .secondsFromNow(interval)) { [weak self] in
-            self?.doTask()
+        guard isDuringScheduled == false else { return }
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
+            self.workItem.cancel()
+            self.workItem = DispatchWorkItem() {
+                self.doTask()
+            }
+            self.isSchedule = true
+            let interval = self.next()
+            print("[\(Date()) schedule retry after: \(interval)]")
+            DispatchQueue.main.asyncAfter(deadline: .secondsFromNow(interval), execute: self.workItem)
         }
     }
     
     private func doTask() {
-        guard isSchedule == true else { return }
-        isSchedule.toggle()
-        executeBlock?()
+        guard isDuringScheduled == true else { return }
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
+            self.isSchedule = false
+            DispatchQueue.main.async {
+                self.executeBlock?()
+            }
+        }
     }
     
     func reset() {
-        count = initialInterval
-        isSchedule = false
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
+            self.workItem.cancel()
+            self.count = self.initialInterval
+            self.isSchedule = false
+        }
     }
 }
