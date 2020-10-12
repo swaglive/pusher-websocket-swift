@@ -56,14 +56,13 @@ class ThrottleSubscriber {
     var limit: Int = 10
     
     init() {
-        let executeBlock: (() -> ())? = { [weak self] in
-            self?.authorizeIfNeeded()
-            self?.throttler.schedule()
+        throttler.executeBlock = { [weak self] in
+            self?.triggerAuthorizationFlow()
         }
-        
-        throttler.executeBlock = executeBlock
+        exponentialBackoff.executeBlock = { [weak self] in
+            self?.triggerAuthorizationFlow()
+        }
         throttler.schedule()
-        exponentialBackoff.executeBlock = executeBlock
     }
     
     func subscribe(channelName: String) -> PusherChannel? {
@@ -75,18 +74,12 @@ class ThrottleSubscriber {
         guard channelName.hasPrefix("presence-") else { return nil }
         let channel = buildPresenceChannel(channelName, connection: connection)
         insertCandidate(channel)
-        if !isDuringRetry {
-            authorizePriorityChannel(channel)
-        }
         return channel
     }
     
     private func nonCriticalChannel(_ channelName: String, connection: PusherConnection) -> PusherChannel? {
         let channel = buildChannel(channelName, connection: connection)
         insertCandidate(channel)
-        if !isDuringRetry {
-            authorizeIfNeeded()
-        }
         return channel
     }
 
@@ -206,6 +199,13 @@ class ThrottleSubscriber {
         if channels.count > 0, !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
+    }
+    
+    /// This method is only triggerred by throttle or exponentialBackoff.
+    /// Try to subscribe candidate channels in the channel pool.
+    private func triggerAuthorizationFlow() {
+        authorizeIfNeeded()
+        throttler.schedule()
     }
 }
 
