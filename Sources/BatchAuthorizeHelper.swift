@@ -117,7 +117,6 @@ class BatchAuthorizeHelper {
                 let error = NSError(domain: errorDomain, code: -1001, userInfo: ["reason": "AuthorisationRequest mal data",
                                                                                  "channel": channelsName])
                 self?.raiseBatchAuthError(forChannels: channels, message: "swag invalid Data", response: response, data: nil, error: error)
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
             let statusCode = (response as? HTTPURLResponse)?.statusCode
@@ -128,7 +127,6 @@ class BatchAuthorizeHelper {
                 let error = NSError(domain: errorDomain, code: -1002, userInfo: ["reason": "AuthorisationRequest  \(dataString ?? "incorrect response")",
                     "channel": channelsName, "response code": statusCode ?? 0])
                 self?.raiseBatchAuthError(forChannels: channels, message: "swag unexpected statusCode", response: response, data: dataString, error: error)
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
             
@@ -138,7 +136,6 @@ class BatchAuthorizeHelper {
                 let error = NSError(domain: errorDomain, code: -1003, userInfo: ["reason": "AuthorisationRequest json convert failed",
                                                                                  "channel": channelsName])
                 self?.raiseBatchAuthError(forChannels: channels, message: "decode data failure", response: response, data: nil, error: error)
-                self?.connection?.retryPresenceChannelsForBatchLimitError()
                 return
             }
 
@@ -180,7 +177,7 @@ class BatchAuthorizeHelper {
             let error = NSError(domain: "com.swag.pusher.error", code: -1004, userInfo: ["reason": "not get authorization",
                                                                              "channel": channelsName])
             raiseBatchAuthError(forChannels: failureChannels, message: "swag empty auth \(channelsName)", response: nil, data: nil, error: error)
-            connection?.retryPresenceChannelsForBatchLimitError()
+            // TODO: send to failure list
         }
     }
     
