@@ -57,6 +57,7 @@ class ThrottleSubscriber {
     
     init() {
         let executeBlock: (() -> ())? = { [weak self] in
+            debugPrint("!!!!!1--  - ThrottleSubscriber  triggerred   --- -- !!!!")
             self?.authorizeIfNeeded()
             self?.throttler.schedule()
         }
@@ -193,6 +194,7 @@ class ThrottleSubscriber {
             connection.connectionState == .connected,
             !isDuringRetry else { return }
         let channels = fetchCandidateChannels()
+        debugPrint("!!!!!attmpt authorizeIfNeeded  \(channels)   --- -- !!!!")
         if channels.count > 0, !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
@@ -203,6 +205,7 @@ class ThrottleSubscriber {
             connection.connectionState == .connected,
             !isDuringRetry else { return }
         let channels = Array([channel])
+        debugPrint("!!!!!attmpt authorizePriorityChannel  \(channels)   --- -- !!!!")
         if channels.count > 0, !connection.authorize(channels) {
             print("[ThrottleSubscriber] Unable to subscribe to channels")
         }
