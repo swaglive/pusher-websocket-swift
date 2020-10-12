@@ -47,7 +47,7 @@ fileprivate class Throttler {
 }
 
 class ThrottleSubscriber {
-    private var throttler = Throttler(minimumDelay: 1)
+    private var throttler = Throttler(minimumDelay: 5)
     weak var connection: PusherConnection? = nil
     private var candidateChannels = Set<PusherChannel>()
     private var priorityCandidateChannels = Set<PusherChannel>()
