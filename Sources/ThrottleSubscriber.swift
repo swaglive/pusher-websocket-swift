@@ -52,8 +52,14 @@ class ThrottleSubscriber {
     weak var connection: PusherConnection? = nil
     private var candidateChannels = Set<PusherChannel>()
     private var priorityCandidateChannels = Set<PusherChannel>()
+    private var failureChannels = Set<PusherChannel>()
     private let queue = DispatchQueue(label: "ThrottleSubscriber.Queue", attributes: .concurrent)
+    
+    /// This backoff is for authorization request backoff
     private var exponentialBackoff = ExponentialBackoff.build()
+    
+    /// This backoff is for channels subscription failure backoff
+    private var failureExponentialBackoff = ExponentialBackoff.build()
     var limit: Int = 10
     
     init() {
@@ -63,7 +69,16 @@ class ThrottleSubscriber {
         exponentialBackoff.executeBlock = { [weak self] in
             self?.triggerAuthorizationFlow()
         }
+        failureExponentialBackoff.executeBlock = { [weak self] in
+            self?.moveFailureChannelsToCandidate()
+        }
         throttler.schedule()
+    }
+    
+    private var backoffList: Array<PusherChannel> {
+        queue.sync {
+            Array(failureChannels)
+        }
     }
     
     func subscribe(channelName: String) -> PusherChannel? {
@@ -105,12 +120,15 @@ class ThrottleSubscriber {
     }
     
     private var isDuringRetry: Bool {
-        exponentialBackoff.isDuringScheduled
+        exponentialBackoff.isDuringScheduled || failureExponentialBackoff.isDuringScheduled
     }
     
     func subscribedToChannel(name: String) {
         removeExistingChannel(name)
         exponentialBackoff.reset()
+        if backoffList.count == 0 {
+            failureExponentialBackoff.reset()
+        }
     }
     
     func unsubscribeChannel(name: String) {
@@ -144,7 +162,37 @@ class ThrottleSubscriber {
         }
     }
     
+    func failAuthorizationChannels(_ channels: [PusherChannel]) {
+        for channel in channels {
+            removeCandidate(channel)
+            appendFailureChannel(channel)
+        }
+        failureExponentialBackoff.schedule()
+    }
+    
     //MARK: - Private Methods
+    private func appendFailureChannel(_ channel: PusherChannel) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
+            channel.authorizing = false
+            self.failureChannels.insert(channel)
+        }
+    }
+    
+    private func moveFailureChannelsToCandidate() {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
+            for channel in self.failureChannels {
+                if channel.isPriority {
+                    self.priorityCandidateChannels.insert(channel)
+                } else {
+                    self.candidateChannels.insert(channel)
+                }
+            }
+            self.failureChannels.removeAll()
+        }
+    }
+
     private func allCandidateChannels() -> Array<PusherChannel> {
         var channels = [PusherChannel]()
         queue.sync {

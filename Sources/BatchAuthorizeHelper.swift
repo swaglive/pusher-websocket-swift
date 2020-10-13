@@ -25,6 +25,7 @@ protocol ExposureAuthorisationHelper: NSObject {
     func authorizationError(forChannel channelName: String, message: String, response: URLResponse?, data: String?, error: NSError?)
     func authorizeResponse(json: [String : AnyObject], channel: PusherChannel)
     func authorizeChannel(_ channel: PusherChannel, auth: PusherAuth?) -> Bool
+    func failAuthorizationChannels(_ channels: [PusherChannel])
 }
 
 class BatchAuthorizeHelper {
@@ -177,7 +178,9 @@ class BatchAuthorizeHelper {
             let error = NSError(domain: "com.swag.pusher.error", code: -1004, userInfo: ["reason": "not get authorization",
                                                                              "channel": channelsName])
             raiseBatchAuthError(forChannels: failureChannels, message: "swag empty auth \(channelsName)", response: nil, data: nil, error: error)
-            // TODO: send to failure list
+            connection?.failAuthorizationChannels(failureChannels)
+        } else {
+            connection?.failAuthorizationChannels([])
         }
     }
     
