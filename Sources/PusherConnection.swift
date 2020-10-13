@@ -999,7 +999,10 @@ extension PusherConnection: ExposureAuthorisationHelper {
     func authorizeChannel(_ channel: PusherChannel, auth: PusherAuth?) -> Bool {
         return authorize(channel, auth: auth)
     }
-
+    
+    func failAuthorizationChannels(_ channels: [PusherChannel]) {
+        throttleSubscriber.failAuthorizationChannels(channels)
+    }
 }
 
 extension PusherConnection: PusherEventQueueDelegate {
