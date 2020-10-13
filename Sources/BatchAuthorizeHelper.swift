@@ -179,8 +179,6 @@ class BatchAuthorizeHelper {
                                                                              "channel": channelsName])
             raiseBatchAuthError(forChannels: failureChannels, message: "swag empty auth \(channelsName)", response: nil, data: nil, error: error)
             connection?.failAuthorizationChannels(failureChannels)
-        } else {
-            connection?.failAuthorizationChannels([])
         }
     }
     
